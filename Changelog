@@ -1,0 +1,549 @@
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+ * 
+ * Changelog for JSummer
+ * $Id: Changelog,v 1.107 2008-03-06 11:01:15 zerwes Exp $
+ * 
+ * (c) 2005 - 2008 Klaus Zerwes zero-sys.net
+ * 
+ * This package is free software.
+ * This software is licensed under the terms of the 
+ * GNU General Public License (GPL), version 2.0 or later, 
+ * as published by the Free Software Foundation. 
+ * See http://www.gnu.org/copyleft/gpl.txt for the terms of the 
+ * latest version of the GNU General Public License.
+ * 
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+NOTES:
+	on debian sarge: if you want to use gcj 3.4 you must install libgcj5-dev
+
+TODO
+	URGENT:
+		
+		see bugreports in tracker!
+		
+		OpenDir _> save checkfile: save dialog is NOT the dir defined by openDir!!!
+		
+		Open Checkfile - Dialog MALFORMED LINE should contain a abort readin button
+		
+		fix RPM stuff - suse has a buggy libswt3-gtk - see bug # 361759  https://bugzilla.novell.com/show_bug.cgi?id=361759
+		
+		nautilus integration on suse has gone ;-) FIXME
+		
+		win32: wix ui.wxs needs update to show a complete list of supported message digest alg.
+		
+		IMPLEMENT: sum /cksum
+			$ sum *.msi
+			55600  2397 JSummer-0.0.6.0-java.msi
+			10915  6651 JSummer-0.0.6.0-native.msi
+			$ cksum *.msi
+			938227130 2454016 JSummer-0.0.6.0-java.msi
+			991995451 6810624 JSummer-0.0.6.0-native.msi
+			cksum: CRC checksum and byte counts
+			sum: checksum and block counts:
+					BSD sum algorithm, use 1K blocks
+					System V sum algorithm, use 512 bytes blocks
+		
+		integrate in Thunar
+		
+		on linux: create different starterscripts using a different alg depending on the name of the script
+		
+		win32 - switch to newest gcj / mingw
+		win32 - remove java_not_in path from WiX
+		
+		FIXME: console version - inverted usage of -r!!!
+		
+		CheckFile : should use methods like addHashFile to determine relPathUsage
+		
+		Firefox plugging
+		
+		Windows installer:
+			configurable path (on update disable path-config and use previouse defined path)
+			cascading file-menue for windows, so the startup is not only for md5sum
+		
+		src-distrib:
+			simple howto
+		
+		MiniChecker:
+			file
+			hash
+			checkresult
+		
+		XWindow:
+			rehash-button (or at least a menue-entry)
+			ToDo: configurable and save config in resourcefile
+		
+		GCJ ShutdownHook: implement it on a windows-build of gcj!!!
+	
+	
+	CheckFile:
+		changing by default into the dir where the checkfile is located ???
+		suppress this behavioure at least in the console-version?
+		maybe add another format of checkfile for FreeBSD-Style?
+			what format is that crap?
+			MD5 (5.4-RELEASE-i386-bootonly.iso) = 2afe65af7e7b994c3ce87cefda27352e
+	
+	GUI
+		HowTo represent Binary Mode in GUI ??? new tablerow 0 ???
+	
+	SaveMDFile:
+		use path "as typed" !?!?! at least for console-version?
+		filewriter should be initialized if the string is set in config
+	
+	DOC:
+		write doc
+	
+	
+	TEST TEST AND TEST AGAIN !!!!!!!!!!!!!!!!!
+
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+
+
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+
+	$Log: Changelog,v $
+	Revision 1.107  2008-03-06 11:01:15  zerwes
+	release version 0.1.0.0
+	FIXME: changing the hash alg will enable the savecheckfile icon, although the table is empty!
+	UPDATED: win-build to SWT3.3.2
+	IMPLEMENTED: the build.xml now uses ../swt/current; this should be a symlink to the swt version
+
+	Revision 1.106  2008-03-05 17:50:19  zerwes
+	version 0.0.6.3
+	FIXED: bug #1907245 (DirectoryDialog initial position in filesys on win32)
+
+	Revision 1.105  2008-03-05 11:56:16  zerwes
+	version 0.0.6.2
+	FIXED: bug #1895639
+
+	Revision 1.104  2008-03-04 21:52:09  zerwes
+	version 0.0.6.1:
+	FIXED: bug #1906280 (open check-file results in duplicated entries in the table)
+	IMPLEMENTED: finished implementing hash-algs: md4, md2, sha-384, sha-512, ripemd128, ripemd160, whirlpool, tiger, haval (closes feature-request #1893624)
+	FIXED: bug #1893630 - automatic hash-alg detection on open checkfile using the GUI dialog
+	IMPLEMENTED: listing all supported filextensions in the open checkfile dialog
+
+	Revision 1.103  2008-03-04 16:39:46  zerwes
+	Start implementing more hash-algs.
+	Dynamical handling of hash-algs implemented
+
+	Revision 1.102  2008-02-14 14:26:39  zerwes
+	0.0.6.0 - fixed java rpm for openSuSE and FC8
+	detected several TODOs/FIXMEs
+
+	Revision 1.101  2008-02-12 11:47:22  zerwes
+	version 0.0.6.0
+	TODO: fix rpm build - SuSE has a buggy libswt3-gtk
+	TODO: fix native build on debian and suse/fc
+
+	Revision 1.100  2008-02-11 15:08:48  zerwes
+	JAppRun replaced by launch4j!
+	win32 installer fixed / optimized
+
+	Revision 1.99  2008-02-09 18:44:09  zerwes
+	fixed debian build problems for java
+	disabled native build on debian
+
+	Revision 1.98  2008-02-08 13:29:56  zerwes
+	FIXED: platform-independent EOL in checkfile
+	UPDATED: SWT
+
+	Revision 1.97  2007-09-06 09:41:00  zerwes
+	*** empty log message ***
+
+	Revision 1.96  2006/03/31 11:08:13  io
+	mime stuff done
+	
+	Revision 1.95  2006/03/28 13:18:42  io
+	mime started
+	
+	Revision 1.94  2006/03/24 16:05:57  io
+	FIXED: GUI : wrong relPath if multiple files as arg on startup
+	
+	Revision 1.93  2006/03/24 10:47:57  io
+	licened ;-)
+	
+	Revision 1.92  2006/03/06 15:31:55  io
+	version 0.0.4.4
+	FIXED: WiX win32 installer: RemoveExistingProducts now before InstallInitialize: this enables simple installations of java/native-build
+	IMPROVED: Launcher / Server (native runs quite well - java-build still slow but working)
+	FIXED: debug-build in ant buildfiles
+	
+	Revision 1.91  2006/03/05 14:41:54  io
+	0.0.0.4:
+	FIXED: ERROR if filesize changes during hashcalculation
+	
+	Revision 1.90  2006/03/05 12:50:07  io
+	FIXED: HashFile:: ERROR output and TableRowMark
+	
+	Revision 1.89  2006/03/04 17:46:52  io
+	FIXED: ClearTable
+	FIXED: CheckFile relativePath (should be better)
+	
+	Revision 1.88  2006/03/04 13:08:42  io
+	FIXED: XHashFile-HashThread: percent-update fixed
+	
+	Revision 1.87  2006/03/04 12:49:50  io
+	FIXED: positioning of popupwindows
+	
+	Revision 1.86  2006/03/04 12:37:13  io
+	FIXED: win32: wix-installer different GUIDs for common files
+	FIXED: win32: Launcher: now uses bat-files (avoid japprun problems)
+	DONE: X/XS now visible in AppName
+	
+	Revision 1.85  2006/03/03 22:08:22  io
+	DONE: launcher and server: divided into 2 apps: this reduced the size of the launcher about 60%
+	DONE: minimalized usage of SWT for native apps: reduced the size of GUI about 30%
+	FIXED: Registry for checkfiles! now sha1 and sha256 checkfiles work!
+	FIXED: JSummer Version in JAppRun visible
+	
+	Revision 1.84  2006/02/23 16:14:12  io
+	XL minimalisation started
+	
+	Revision 1.83  2006/02/09 15:54:37  io
+	ff extension
+	
+	Revision 1.82  2006/01/23 15:25:32  io
+	TODO: launcher: page out serverconnector
+	
+	Revision 1.81  2006/01/05 15:54:54  io
+	size of MD5 icon fixed
+	
+	Revision 1.80  2006/01/05 14:53:00  io
+	todo ...
+	
+	Revision 1.79  2005/12/19 11:15:24  io
+	release 0.0.4.0
+	
+	Revision 1.78  2005/12/18 22:36:20  io
+	FIXED: WiX upgrade
+	
+	Revision 1.77  2005/12/18 19:42:53  io
+	FIXED: rel. path stuff
+	 - inversed displayof tooltip
+	 - error displaying relPath if first file was loaded w/ useRelPath off
+	FIXED: problem if NameThread started faster then FileGutterThread (result was e clean and fast exit() of NameTread ergo: no more displayupdates)
+	
+	Revision 1.76  2005/12/18 12:45:52  io
+	XLauncher: focus window if file added via server
+	
+	Revision 1.75  2005/12/18 10:52:50  io
+	summary - line for console-version for checkfiles done
+	
+	Revision 1.74  2005/12/17 16:36:03  io
+	0.0.4.0 pre
+	
+	Revision 1.73  2005/12/17 15:35:29  io
+	Colors replaced by SystemColors
+	
+	Revision 1.72  2005/12/17 15:07:10  io
+	XAbout improved
+	
+	Revision 1.71  2005/12/17 13:17:28  io
+	Final statusbar
+	filedetails implemented
+	
+	Revision 1.70  2005/12/16 09:34:00  io
+	FIXED: console-version dependencie to SWT due to Config::SWT.VERSION resolved
+	FIXED: mingw native build hashfile-error after completion (IOException)
+	
+	Revision 1.69  2005/12/15 16:55:24  io
+	statusbar OK
+	width for GTL-version OK
+	
+	Revision 1.68  2005/11/16 22:38:23  io
+	version 0.3 (0.0.3.0)
+	
+	Revision 1.67  2005/10/18 11:29:35  io
+	much more TODO ...
+	
+	Revision 1.66  2005/09/19 13:42:35  io
+	installer improved
+	rc1 for version 0.2
+	
+	Revision 1.65  2005/09/13 14:01:32  io
+	javaVM-Info added to about
+	changehashalg improved
+	resize improved
+	
+	Revision 1.64  2005/09/13 10:47:16  io
+	NameThread moved to XW
+	XAddDir :: start thread abandoned
+	XChangeHashAlg improved
+	
+	Revision 1.63  2005/09/08 15:20:00  io
+	XFileGutter-Problems FIXED
+	TODO: cleanup and test
+	
+	Revision 1.62  2005/09/05 19:42:47  io
+	detected errors in hashthread
+	FIXIT !!!
+	
+	Revision 1.61  2005/09/01 15:32:58  io
+	GUI XFileGutter: display started as threads
+	general stuff is working but still needs some optimizations
+	
+	Revision 1.60  2005/08/31 14:45:17  io
+	SHA-160 and SHA-256 implemented
+	TODO: XFileGutter: display-stuff should be run i a extra thread
+	
+	Revision 1.59  2005/08/30 15:13:10  io
+	confirm exit and cleartable implemented
+	TODO: hashsumselect in GUI
+	
+	Revision 1.58  2005/08/30 10:39:38  io
+	FIXED: size in installer-window
+	
+	Revision 1.57  2005/08/13 15:37:05  io
+	linux installer fixed
+	first linux-installer-package released
+	in Config implemented just some Java-VM-debug output
+	
+	Revision 1.56  2005/08/11 15:21:16  io
+	linux-installer in ant-buildfile implemented
+	TODO: test the installer with native stuff
+	FIXME: java-launcher for JSummerX is not working for gij
+	FIXME: inclusion of swt.jar should be done only if not included in JSummer.jar
+	
+	Revision 1.55  2005/08/10 15:46:15  io
+	JAppRun updated
+	clearScreen fixed (no clearaction if file/dir-dialog is aborted)
+	*.md5-filter fixed
+	ant-build fixed japprun
+	
+	Revision 1.54  2005/08/06 17:14:43  io
+	License fixed
+	ant-buildfile : rtf2html fixed
+	(needs extra antcall, otherwise the html is not flushed to disk before candle/light)
+	
+	Revision 1.53  2005/08/06 15:21:20  io
+	dynamic license conversion from rtf 2 html implemented
+	
+	Revision 1.52  2005/08/06 14:47:25  io
+	IMPLEMENTED: dynamic version handling in ant buildfile
+	 now the only source for the app-version is Config.VERSION
+	
+	Revision 1.51  2005/08/04 14:51:26  io
+	IMPROVED:       portFile handling in Launcher (reader and writer closed as soon as we do not need them anymore)
+	IMPLEMENTED: portFile ownership- and takeover-detection before delete
+	IMPLEMENTED: takeOverServer if port can not be determined from portFile
+	TODO:              decide if takeOver should be started if connection to server fails?!?
+	
+	Revision 1.50  2005/08/04 11:15:40  io
+	tested shutdownhook on linux with gcj native build:
+	gcj-3.3 (GCC) 3.3.5 (Debian 1:3.3.5-13)
+	gcj-3.4 (GCC) 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)
+	result: ERROR
+	
+	Revision 1.49  2005/08/04 09:59:48  io
+	FIXED: javac source / target problem
+	DONE: shutdownhook tested on windows with gcj (GCC) 3.4.2 (mingw-special): result:OK
+	TODO: test it on linux with gcj 3.3 and 3.4
+	
+	Revision 1.48  2005/08/03 14:14:51  io
+	native-installer for windows done
+	
+	Revision 1.47  2005/08/02 10:25:10  io
+	FIXED: zombie-server in Launcher if swt.jar or swt-lib can not be found
+	FIXED: dependencie of XWindow to XLauncherServer resolved by implementing
+	            a subclass of XWindow: XLauncherXWindow
+	
+	Revision 1.46  2005/08/01 18:04:46  io
+	FIXED:
+	 - problem with hanging / zombie-state XLauncher on missing swt-libs
+	IMPLEMENTTED:
+	 - log2file (at least for Launcher)
+	TODO:
+	 - XWindow - make subclass for XLauncher so original XWindow isn't depending on XLauncherServer
+	 - ShutdownHook - test if this makes XLauncher HANG????
+	 - log2file - implement it in XWindow
+	
+	Revision 1.45  2005/07/31 17:58:59  io
+	ant-buildfile - native-build exclide-files performed better
+	ShutdownHook ignored by gcj !!!!!!
+	
+	Revision 1.44  2005/07/31 15:59:31  io
+	XLauncher - problems deleting portFile :: FIXED
+	TODO: ctrl+c - watcher for XLauncher (on sigkill portfile is not deleted)
+	
+	Revision 1.43  2005/07/31 13:59:30  io
+	max errornum in checkfile implemented
+	workaround for missing regex in gcj for checkfile
+	
+	Revision 1.42  2005/07/30 17:56:15  io
+	resolved problem with hanginh launcher
+	TODO: make server in Launcher faster, so it has a greater priority in comparision to Check-proc
+	
+	Revision 1.41  2005/07/28 15:02:28  io
+	java-installer: consolle-exe replaced by bat and added JSUMMER_DIR env-var
+	PROBLEM :: LAUNCHER IS HANGING SOMETIMES !!!!
+	TODO: DEBUG IT !!!
+	
+	Revision 1.40  2005/07/28 11:18:57  io
+	problems with JAppRun eliminated
+	
+	Revision 1.39  2005/07/26 21:51:10  io
+	RUNNING INSTALLER FOR JAVA-PACKAGE !!!
+	
+	Revision 1.38  2005/07/24 19:37:18  io
+	installer wix started
+	
+	Revision 1.37  2005/07/23 15:45:47  io
+	swt-dyn-lib implemented in ant buildfile
+	
+	Revision 1.36  2005/07/22 20:08:23  io
+	XLauncher - client deletes serverfile :: FIXED
+	Debug-Output for XLauncher fixed
+	Done some testing and found some bugs :: see Changelog !!!
+	
+	Revision 1.35  2005/07/22 18:43:42  io
+	EXIT-Problem for native XLauncher Linux/GTK deployed
+	
+	Revision 1.34  2005/07/21 12:48:58  io
+	cumulative targets added
+	TODO:
+	 - problems on linux with launcher
+	   (in fact launcher is not aimed to be used on linux - but it should work!)
+	 - runntime error on linux when usin gcj-3.4
+	
+	Revision 1.33  2005/07/21 10:34:02  io
+	native require swt-libs !!!
+	so: all is working - omly the libs where missing ;-)
+	TODO:
+	 - link against swt-libs
+	 - libiconv? link against it statical?
+	 - WiX installer for Windows
+	
+	Revision 1.32  2005/07/20 14:49:32  io
+	ERROR native GUI/GUILauncher on Windows
+	
+	Revision 1.31  2005/07/20 14:24:30  io
+	integrated Launcher in buildfile
+	TODO: native version of gui-launcher on linux: EXIT not working
+	
+	Revision 1.30  2005/07/20 12:28:36  io
+	XLauncher - some buggs fixed and ConfigConnector implemented as Thread
+	
+	Revision 1.29  2005/07/19 14:01:52  io
+	launcher working !!!
+	TODO: include Launcher in ant-buildfile (windows esp.)
+	
+	Revision 1.28  2005/07/15 17:28:00  io
+	iconstuff for windows fixed
+	
+	Revision 1.27  2005/07/14 14:07:55  io
+	ant uptodate for SWT fixed!
+	
+	Revision 1.26  2005/07/14 12:54:19  io
+	running ANT buildfile on windows AND linux for java-console java-gui native-console and native gui
+	TODO: package-targets for ant
+	SWT-uptodate must be fixed !!!
+	
+	Revision 1.25  2005/07/14 12:48:25  io
+	ANT is rubbing ...
+	
+	Revision 1.24  2005/07/10 18:59:23  io
+	ANT build-file for targets on Linux:
+	-java-console/gui-jar
+	-native-console
+	-native-gui
+	Problems:
+	- gcj and Java.lang.String.matches -> maybe use normal regex?
+	- gui native static segfault!!!
+	- jar GUI should include ALL stuff (swt)
+	
+	Revision 1.23  2005/07/02 17:48:18  io
+	running ant-buildfile at least for console-version
+	
+	Revision 1.22  2005/07/02 17:45:52  io
+	HASHCHECK in CheckMDFile eliminated due to incompatibility with gcj!
+	TODO: fix it so it will work with gcj
+	
+	Revision 1.21  2005/07/01 19:35:08  io
+	XHashFile implemented
+	TODO - test implications!!!
+	
+	Revision 1.20  2005/06/30 14:18:34  io
+	new appicons
+	
+	Revision 1.19  2005/06/30 13:04:56  io
+	Implemented: check for malformed lines in checkfiles
+	
+	Revision 1.18  2005/06/29 15:35:42  io
+	FIXED: disabled relPath for checkfile was not reenabled on clearTable
+	TODO: test same stuf on Windows for sysindepPath
+	
+	Revision 1.17  2005/06/29 13:46:50  io
+	saveHash improved
+	getHashLine in hashFile implemented
+	getName in HashFile improved
+	
+	Revision 1.16  2005/06/29 12:08:42  io
+	fixed hashFile with parent constructor
+	FIX and PROBLEM see comments in ashFile
+	
+	Revision 1.15  2005/06/28 14:38:45  io
+	FIXED SAVEFILE - problem:
+	 succecive trys to save in a file without writeaccess caused a error
+	 fix: clear filewriter
+	
+	Revision 1.14  2005/06/28 13:07:37  io
+	syncronized dependenciesbetween rel.Path and sysindep.Path
+	implemented simple about
+	
+	Revision 1.13  2005/06/28 12:01:01  io
+	fixed problems with rel.Path
+	
+	Revision 1.12  2005/06/27 20:03:56  io
+	sysindep path GUI implemented
+	TEST CONSOLEVERSION, as some changes apply
+	
+	Revision 1.11  2005/06/27 13:20:04  io
+	Changed CONFIGXCONFIG - setters getters
+	rel. Path - still some Problems left
+	(when rel.Path deselected and Files ar new opened there is no Chance to switch bach the view to rel.Path
+	
+	Revision 1.10  2005/06/24 19:07:32  io
+	Add CheckFile implemented
+	fixed CheckFile (relative path / cd to location of checkfile)
+	changed constructor of hashfile: added parent parameter
+	this implements changes in addhashFile in Confug/XConfig
+	TODO: icon fir AddCheckFile: should be a filesymbol with MD5 printed
+	
+	Revision 1.9  2005/06/23 18:41:27  io
+	fixed clear-problems
+	
+	Revision 1.8  2005/06/23 13:55:08  io
+	clear implemented
+	stiil some problems with the table :: remove initial stupid vector?
+	
+	Revision 1.7  2005/06/22 13:11:43  io
+	FIXED: Layout-Problems
+	IMPLEMENTED: save,openFile,openDir
+	TODO: cleartable; userelPath;useSysindepPath; upperLoverhash; openCheckFile; server and listener for stupid windows
+	
+	Revision 1.6  2005/06/20 19:17:19  io
+	toolbar started
+	
+	Revision 1.5  2005/06/20 15:30:06  io
+	running X
+	
+	Revision 1.4  2005/06/20 07:13:42  io
+	changes in X started ... commit due move to other dev.platform
+	
+	Revision 1.3  2005/06/16 12:14:23  io
+	first running SWT/GUI-Version
+	
+	Revision 1.2  2005/06/10 21:35:30  io
+	HashFile as Thread: changed Screen.error() output
+	
+	Revision 1.1  2005/06/10 19:10:22  io
+	First running version 4 console
+	
+
+
+/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*

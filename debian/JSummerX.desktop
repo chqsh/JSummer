@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=JSummerX
+GenericName=JSummer
+Comment=JSummer - check and calculate message digest
+MimeType=text/digest-md5;text/digest-md4;text/digest-md2;text/digest-sha160;text/digest-sha256;text/digest-sha384;text/digest-sha512;text/digest-ripemd128;text/digest-ripemd160;text/digest-whirlpool;text/digest-tiger;text/digest-haval;
+Exec='/usr/bin/JSummerX' -c
+Type=Application
+Terminal=false
+Categories=GNOME;Application;Utility;
+SwallowTitle=JSummerX
+Icon=/usr/share/pixmaps/JSummer.xpm
+NoDisplay=true

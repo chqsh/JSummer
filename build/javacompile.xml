@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+	ant helper-buildfile for javacompile
+	Apache Ant version 1.6.2
+	(c) 2006 Klaus Zerwes zero-sys.net
+	
+	$Id: javacompile.xml,v 1.3 2008-02-08 23:23:00 zerwes Exp $
+-->
+
+<project name="javacompile" basedir="../" default="javacompile">
+	
+
+	<!-- TEST for required params -->
+	<fail message="missing classpath">
+		<condition>
+			<not>
+				<isset property="classpath"/>
+			</not>
+		</condition>
+	</fail>
+	
+	<fail message="missing destdir">
+		<condition>
+			<not>
+				<isset property="destdir"/>
+			</not>
+		</condition>
+	</fail>
+	
+	
+	<!-- test for javafile :: STUPID: maybe we need wildcards?-->
+	<!--<available file="${javafile}" type="file" property="javafilepresent" />
+	<fail message="unable to find javafile ${javafile}">
+		<condition>
+			<not>
+				<isset property="javafilepresent"/>
+			</not>
+		</condition>
+	</fail>-->
+
+	<!-- test for destdir -->
+	<available file="${destdir}" type="dir" property="destdirpresent" />
+	<fail message="unable to find destdir ${destdir}">
+		<condition>
+			<not>
+				<isset property="destdirpresent"/>
+			</not>
+		</condition>
+	</fail>
+	
+	
+	<!-- set the compiler -->
+	<condition property="javacompiler" value="javac">
+		<not>
+			<isset property="javacompiler"/>
+		</not>
+	</condition>
+	
+	<!-- set the targetversion -->
+	<condition property="targetversion" value="1.4">
+		<not>
+			<isset property="targetversion"/>
+		</not>
+	</condition>
+	
+	<!-- sourceversion -->
+	<condition property="sourceversion" value="1.4">
+		<not>
+			<isset property="sourceversion"/>
+		</not>
+	</condition>
+	
+	
+
+	<target name="javacompile" description="generate bytecode ...">
+		<fail message="missing javafile or files.compile">
+			<condition>
+				<not>
+					<isset property="javafile"/>
+				</not>
+			</condition>
+		</fail>
+
+	    <!--<exec executable="pwd" 
+	        failifexecutionfails="false" 
+	        failonerror="false"
+	    	dir="" />-->
+	    
+		<echo message="javafile: '${javafile}'"/>
+		<echo message="classpath: '${classpath}'"/>
+		<echo message="destdir: '${destdir}'"/>
+		<echo message="javacompiler: '${javacompiler}'"/>
+		<echo message="targetversion: '${targetversion}'"/>
+		<echo message="sourceversion: '${sourceversion}'"/>
+		<apply executable="${javacompiler}"
+				dir="" 
+				relative="no" 
+				parallel="no"
+				failonerror="yes"
+				ignoremissing="false"
+				verbose="true">
+			<arg line="-classpath ${classpath}"/>
+			<arg line="-d ${destdir}"/>
+			<arg line="-target ${targetversion}"/>
+			<arg line="-source ${sourceversion}"/>
+			<!--<arg value="-verbose"/>-->
+			<fileset dir="${basedir}">
+				<include name="${javafile}" />
+			</fileset>
+		</apply>
+	</target>
+	
+	
+	
+	<target name="javacompilefileset" description="generate bytecode ...">
+		<echo message="classpath: '${classpath}'"/>
+		<echo message="destdir: '${destdir}'"/>
+		<echo message="javacompiler: '${javacompiler}'"/>
+		<echo message="targetversion: '${targetversion}'"/>
+		<echo message="sourceversion: '${sourceversion}'"/>
+		<apply executable="${javacompiler}"
+				dir="" 
+				relative="no" 
+				parallel="no"
+				failonerror="yes"
+				ignoremissing="false"
+				verbose="true">
+			<arg line="-classpath ${classpath}"/>
+			<arg line="-d ${destdir}"/>
+			<arg line="-target ${targetversion}"/>
+			<arg line="-source ${sourceversion}"/>
+			<!--<arg value="-verbose"/>-->
+			<fileset refid="files.compile"/>
+		</apply>
+	</target>
+	
+</project>

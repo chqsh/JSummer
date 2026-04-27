@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=JSummerX
+GenericName=JSummer
+Comment=compute and check MD5, MD4, MD2, SHA-160, SHA-256, SHA-384, SHA-512, RIPEMD128, RIPEMD160, WHIRLPOOL, TIGER, HAVAL message digest
+Terminal=false
+Name=JSummer
+Icon=/usr/share/pixmaps/JSummer.xpm
+Encoding=UTF-8
+Categories=Utility;DesktopUtility;

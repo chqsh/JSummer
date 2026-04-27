@@ -1,0 +1,8 @@
+[DEFAULT]
+BASEURL=http://www.zero-sys.net/
+[DOC#29#31]
+BASEURL=res://C:\WINDOWS\system32\shdoclc.dll/http_404.htm
+ORIGURL=blank.html
+[InternetShortcut]
+URL=http://www.zero-sys.net/
+Modified=F0ABA4781A92C50129

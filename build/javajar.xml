@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+	ant helper-buildfile for javajar
+	Apache Ant version 1.6.2
+	(c) 2006 Klaus Zerwes zero-sys.net
+	
+	$Id: javajar.xml,v 1.1 2006-03-02 14:06:27 io Exp $
+-->
+
+
+<project name="javajar" basedir="../" default="jar">
+	
+
+
+	<!-- TEST for required params -->
+	<fail message="missing name">
+		<condition>
+			<not>
+				<isset property="name"/>
+			</not>
+		</condition>
+	</fail>
+	<fail message="missing main">
+		<condition>
+			<not>
+				<isset property="main"/>
+			</not>
+		</condition>
+	</fail>
+	<fail message="missing version">
+		<condition>
+			<not>
+				<isset property="version"/>
+			</not>
+		</condition>
+	</fail>
+	
+	<!-- defaults -->
+	<condition property="classdir" value="build${file.separator}classes">
+		<not>
+			<isset property="classdir"/>
+		</not>
+	</condition>
+	<condition property="outdir" value="build${file.separator}out">
+		<not>
+			<isset property="outdir"/>
+		</not>
+	</condition>
+	<condition property="classpath" value="swt.jar">
+		<not>
+			<isset property="classpath"/>
+		</not>
+	</condition>
+	<condition property="createdby" value="Klaus Zerwes zero-sys.net">
+		<not>
+			<isset property="createdby"/>
+		</not>
+	</condition>
+	<condition property="vendor" value="zero-sys.net">
+		<not>
+			<isset property="vendor"/>
+		</not>
+	</condition>
+
+	<!-- ================================= 
+          target: jar              
+    ================================= -->
+	<target name="jar" description="build jar">
+		<delete file="${outdir}/${name}.jar"/>
+		<jar destfile="${outdir}/${name}.jar">
+			<manifest>
+				<attribute name="Created-By" value="${createdby}"/>
+				<attribute name="Main-Class" value="${main}"/>
+				<attribute name="Class-Path" value="${classpath}"/>
+				<section name="common">
+					<attribute name="Specification-Title" value="${name}"/>
+					<attribute name="Specification-Version" value="${version}"/>
+					<attribute name="Specification-Vendor" value="${vendor}"/>
+					<attribute name="Implementation-Title" value="${name}"/>
+					<attribute name="Implementation-Version" value="${version}"/>
+					<attribute name="Implementation-Vendor" value="${vendor}"/>
+				</section>
+			</manifest>
+			<fileset dir="${classdir}">
+				<include name="**/*"/>
+				<exclude name="**/export*.class"/>
+			</fileset>
+		</jar>
+		<echo message="jar saved as ${outdir}${file.separator}${name}.jar"/>
+	</target>
+
+</project>

@@ -1,0 +1,65 @@
+[Desktop Entry]
+Actions=CalculateDigestMD5;CalculateDigestMD4;CalculateDigestMD2;CalculateDigestSHA160;CalculateDigestSHA256;CalculateDigestSHA384;CalculateDigestSHA512;CalculateDigestRIPEMD128;CalculateDigestRIPEMD160;CalculateDigestWHIRLPOOL;CalculateDigestTIGER;CalculateDigestHAVAL;
+Encoding=UTF-8
+ServiceTypes=all/allfiles,inode/directory
+ExcludeServiceTypes=text/digest-md5;text/digest-md4;text/digest-md2;text/digest-sha160;text/digest-sha256;text/digest-sha384;text/digest-sha512;text/digest-ripemd128;text/digest-ripemd160;text/digest-whirlpool;text/digest-tiger;text/digest-haval
+
+[Desktop Action CalculateDigestMD5]
+Exec=jsummerx -m MD5 %F
+Name=Calculate MD5 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestMD4]
+Exec=jsummerx -m MD4 %F
+Name=Calculate MD4 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestMD2]
+Exec=jsummerx -m MD2 %F
+Name=Calculate MD2 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestSHA160]
+Exec=jsummerx -m SHA160 %F
+Name=Calculate SHA160 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestSHA256]
+Exec=jsummerx -m SHA256 %F
+Name=Calculate SHA256 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestSHA384]
+Exec=jsummerx -m SHA384 %F
+Name=Calculate SHA384 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestSHA512]
+Exec=jsummerx -m SHA512 %F
+Name=Calculate SHA512 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestRIPEMD128]
+Exec=jsummerx -m RIPEMD128 %F
+Name=Calculate RIPEMD128 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestRIPEMD160]
+Exec=jsummerx -m RIPEMD160 %F
+Name=Calculate RIPEMD160 Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestWHIRLPOOL]
+Exec=jsummerx -m WHIRLPOOL %F
+Name=Calculate WHIRLPOOL Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestTIGER]
+Exec=jsummerx -m TIGER %F
+Name=Calculate TIGER Hashsum
+Icon=JSummer.xpm
+
+[Desktop Action CalculateDigestHAVAL]
+Exec=jsummerx -m HAVAL %F
+Name=Calculate HAVAL Hashsum
+Icon=JSummer.xpm

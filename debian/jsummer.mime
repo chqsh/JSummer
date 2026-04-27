@@ -1,0 +1,47 @@
+text/digest-md5:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-md4:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-md2:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-sha160:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-sha256:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-sha384:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-sha512:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-ripemd128:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-ripemd160:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-whirlpool:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-tiger:
+        open=jsummerx -c %f
+        open=jsummerx -c %f
+
+text/digest-haval:
+        open=jsummerx -c %f
+        open=jsummerx -c %f

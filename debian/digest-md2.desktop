@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Comment=MD2 Digest
+Type=MimeType
+MimeType=text/digest-md2
+Patterns=*.md2;
+Icon=JSummer.xpm
+X-KDE-AutoEmbed=false                                                           
+[Property::X-KDE-NativeExtension]                                               
+Type=QString                                                                    
+Value=.md2

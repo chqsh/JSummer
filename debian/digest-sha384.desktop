@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Comment=SHA-384 Digest
+Type=MimeType
+MimeType=text/digest-sha384
+Patterns=*.sha384;
+Icon=JSummer.xpm
+X-KDE-AutoEmbed=false                                                           
+[Property::X-KDE-NativeExtension]                                               
+Type=QString                                                                    
+Value=.sha384

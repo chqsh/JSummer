@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+	ant helper-buildfile for javadepend
+	Apache Ant version 1.6.2
+	(c) 2006 Klaus Zerwes zero-sys.net
+	
+	$Id: javadepend.xml,v 1.1 2006-03-02 14:06:27 io Exp $
+-->
+
+<project name="javadepend" basedir="../" default="javadepend">
+	
+	<!-- defaults -->
+	<condition property="fromdir" value="build${file.separator}classes">
+		<not>
+			<isset property="fromdir"/>
+		</not>
+	</condition>
+	<condition property="todir" value="src">
+		<not>
+			<isset property="todir"/>
+		</not>
+	</condition>
+	<condition property="fromextension" value="class">
+		<not>
+			<isset property="fromextension"/>
+		</not>
+	</condition>
+	<condition property="toextension" value="java">
+		<not>
+			<isset property="toextension"/>
+		</not>
+	</condition>
+	<condition property="dependfile" value="build${file.separator}depends.dep">
+		<not>
+			<isset property="dependfile"/>
+		</not>
+	</condition>
+	
+	<target name="javadepend">
+		<delete file="${dependfile}"/>
+		<apply executable="echo" addsourcefile="false"
+				relative="false" parallel="true"
+				dir="${basedir}" dest="${basedir}"
+				verbose="true"
+				output="${dependfile}">
+			<targetfile/>
+			<fileset dir="${basedir}">
+				<include name="${fromdir}${file.separator}**${file.separator}*.${fromextension}"/>
+				<exclude name="${fromdir}${file.separator}**${file.separator}*$$*.${fromextension}"/>
+			</fileset>
+			<mapper type="glob" 
+					from="${fromdir}${file.separator}*.${fromextension}"
+					to="${todir}${file.separator}*.${toextension}"/>
+		</apply>
+	</target>
+</project>

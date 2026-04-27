@@ -1,0 +1,69 @@
+jsummer (0.1.0.0-1) unstable; urgency=low
+
+  * FIXME: changing the hash alg will enable the savecheckfile icon, although the table is empty!
+  * FIXED: bug #1907245 (DirectoryDialog initial position in filesys on win32)
+  * FIXED: bug #1895639 (checkfile schould be excluded if we check a directory)
+  * FIXED: bug #1906280 (open check-file results in duplicated entries in the table)
+  * IMPLEMENTED: finished hash-algs: md4, md2, sha-384, sha-512, ripemd128, ripemd160, whirlpool, tiger, haval (closes feature-request #1893624)
+  * IMPLEMENTED: dynamical handling of hash-algs
+  * FIXED: bug #1893630 - automatic hash-alg detection on open checkfile using the GUI dialog
+  * IMPLEMENTED: listing all supported filextensions in the open checkfile dialog
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Wed, 05 Mar 2008 15:16:05 +0100
+
+
+jsummer (0.0.6.0-1) unstable; urgency=low
+
+  * FIXED: platform-independent EOL in checkfile
+  * UPDATED: original SWT used from debian
+  * FIXED: counter reset on clear table
+  * FIXED: status bar layout
+  * removed native version - there are som things needing investigations
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Fri, 08 Feb 2008 14:31:40 +0100
+
+
+jsummer (0.0.5.2-1) unstable; urgency=low
+
+  * DONE: integration into Konqueror (OK) and Nautilus (improve it!)
+  * FIXED: relativePath if multiple files on startup
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Tue,  30 Mar 2006 20:01:22 +0100
+
+
+jsummer (0.0.5.1-2) unstable; urgency=low
+
+  * FIXED: "$@" for the java starter !!! bless my stupid brain ;-)
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Tue,  9 Mar 2006 13:11:33 +0100
+
+
+jsummer (0.0.5.1-1) unstable; urgency=low
+
+  * FIXED: WiX win32 installer: RemoveExistingProducts now before InstallInitialize: this enables simple installations of java/native-build
+  * IMPROVED: Launcher / Server (native runs quite well - java-build still slow but working)
+  * FIXED: debug-build in ant buildfiles
+  * FIXED: ERROR if filesize changes during hashcalculation
+  * FIXED: HashFile:: ERROR output and TableRowMark
+  * FIXED: ClearTable
+  * FIXED: CheckFile relativePath (should be better)
+  * FIXED: XHashFile-HashThread: percent-update fixed
+  * FIXED: positioning of popupwindows
+  * FIXED: win32: wix-installer different GUIDs for common files
+  * FIXED: win32: Launcher: now uses bat-files (avoid japprun problems)
+  * DONE: X/XS now visible in AppName
+  * DONE: launcher and server: divided into 2 apps: this reduced the size of the launcher about 60%
+  * DONE: minimalized usage of SWT for native apps: reduced the size of GUI about 30%
+  * FIXED: Registry for checkfiles! now sha1 and sha256 checkfiles work!
+  * FIXED: JSummer Version in JAppRun visible
+  * size of MD5 icon fixed
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Tue,  8 Mar 2006 13:11:33 +0100
+
+
+jsummer (0.0.4.0-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>  Tue,  7 Mar 2006 13:11:33 +0100
+

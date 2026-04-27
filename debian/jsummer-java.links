@@ -1,0 +1,9 @@
+/usr/bin/JSummer.sh /usr/bin/jsummer
+/usr/bin/JSummerX.sh /usr/bin/jsummerx
+/usr/bin/jsummer /usr/bin/JSummer
+/usr/bin/jsummerx /usr/bin/JSummerX
+/usr/share/man/man1/jsummer.1.gz /usr/share/man/man1/jsummerx.1.gz
+/usr/share/man/man1/jsummer.1.gz /usr/share/man/man1/JSummer.1.gz
+/usr/share/man/man1/jsummer.1.gz /usr/share/man/man1/JSummerX.1.gz
+/usr/share/man/man1/jsummer.1.gz /usr/share/man/man1/JSummerX.sh.1.gz
+/usr/share/man/man1/jsummer.1.gz /usr/share/man/man1/JSummer.sh.1.gz

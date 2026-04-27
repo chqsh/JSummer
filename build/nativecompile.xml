@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+	ant helper-buildfile for nativecompile
+	Apache Ant version 1.6.2
+	(c) 2006 Klaus Zerwes zero-sys.net
+	
+	$Id: nativecompile.xml,v 1.5 2008-02-08 23:23:00 zerwes Exp $
+-->
+
+
+<project name="nativecompile" basedir="../" default="nativebuild">
+
+	
+	<!-- defaults -->
+	<condition property="linkparam" value="-mwindows">
+		<os family="Windows"/>
+	</condition>
+	<condition 
+		property="linkparam"
+		value="-I.">
+		<!-- fake value -->
+		<not>
+			<isset property="linkparam"/>
+		</not>
+	</condition>
+	<condition property="filelist" value="build${file.separator}depends.dep">
+		<not>
+			<isset property="filelist"/>
+		</not>
+	</condition>
+	<condition property="srcdir" value="src">
+		<not>
+			<isset property="srcdir"/>
+		</not>
+	</condition>
+	<condition property="outdir" value="build${file.separator}out">
+		<not>
+			<isset property="outdir"/>
+		</not>
+	</condition>
+	<condition property="objdir" value="build${file.separator}obj">
+		<not>
+			<isset property="objdir"/>
+		</not>
+	</condition>
+	<condition property="compiler" value="gcj">
+		<not>
+			<isset property="compiler"/>
+		</not>
+	</condition>
+	<condition property="dbg" value="0">
+		<not>
+			<isset property="dbg"/>
+		</not>
+	</condition>
+	<condition property="opt" value="3">
+		<not>
+			<isset property="opt"/>
+		</not>
+	</condition>
+	<condition property="debug">
+		<istrue value="${debugbuild}"/>
+	</condition>
+	<condition property="stripexec" value="strip">
+		<not>
+			<isset property="stripexec"/>
+		</not>
+	</condition>
+
+	<!-- additional stuff -->
+	<condition property="param1" value="-I.">
+		<not>
+			<isset property="param1"/>
+		</not>
+	</condition>
+	<condition property="param2" value="-I.">
+		<not>
+			<isset property="param2"/>
+		</not>
+	</condition>
+	<condition property="param3" value="-I.">
+		<not>
+			<isset property="param3"/>
+		</not>
+	</condition>
+	<condition property="param4" value="-I.">
+		<not>
+			<isset property="param4"/>
+		</not>
+	</condition>
+	<condition property="param5" value="-I.">
+		<not>
+			<isset property="param5"/>
+		</not>
+	</condition>
+	
+	
+	<!-- test required stuff -->
+	<target name="requireclasspath">
+		<fail message="missing classpath">
+			<condition>
+				<not>
+					<isset property="classpath"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
+	<target name="requiremain">
+		<fail message="missing main">
+			<condition>
+				<not>
+					<isset property="main"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+
+	<target name="requireoutfile">
+		<fail message="missing outfile">
+			<condition>
+				<not>
+					<isset property="outfile"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
+	
+	
+	<!-- compile -->
+	<target name="nativecompile" depends="requireclasspath">
+		<echo message="${ant.file} :: nativecompile basedir:${basedir}"/>
+		<echo message="srcdir: ${srcdir}"/>
+		<echo message="compiler: ${compiler}"/>
+		<echo message="classpath: ${classpath}"/>
+		
+		<!--<echo message="listing fileset files.compile:" />
+		<apply executable="echoargs"
+				relative="false"
+				dest=""
+				verbose="true"
+				ignoremissing="false">
+			<targetfile/>
+			<srcfile/>
+			<fileset refid="files.compile"/>
+			<mapper type="glob"
+				from="*.java" 
+				to="${package.build}/${package.buildobj}/*.o"/>
+		</apply>-->
+		<apply executable="${compiler}"
+				verbose="true"
+				parallel="false"
+				failonerror="true"
+				dir=""
+				dest="${basedir}"
+				relative="false"
+				ignoremissing="no"
+				forwardslash="true">
+			<arg value="--classpath=${classpath}"/>
+			<arg value="-c"/>
+			<arg value="-Wall"/>
+			<arg value="-g${dbg}"/>
+			<arg value="-O${opt}"/>
+			<arg value="${param1}"/>
+			<arg value="${param2}"/>
+			<arg value="${param3}"/>
+			<arg value="${param4}"/>
+			<arg value="${param5}"/>
+			<arg value="-o"/>
+			<targetfile/>
+			<srcfile/>
+			<fileset refid="files.compile"/>
+			<!--<mapper type="glob"
+				from="${srcdir}${file.separator}*.java"
+				to="${objdir}/*.o"/>-->
+			<mapper type="glob"
+				from="*.java" 
+				to="${package.build}/${package.buildobj}/*.o"/>
+		</apply>
+	</target>
+	
+	<!-- compile dep -->
+	<target name="nativecompile-dep" depends="requireclasspath">
+		<!-- is seems this is needed for the deb-file to be flushed to disk -->
+		<apply executable="cat">
+			<fileset dir="">
+				<include name="${filelist}"/>
+			</fileset>
+		</apply>
+		<exec executable="${compiler}"
+				failifexecutionfails="true"
+				failonerror="true"
+				dir="${basedir}">
+			<arg value="--classpath=${classpath}"/>
+			<arg value="-c"/>
+			<arg value="-Wall"/>
+			<arg value="-g${dbg}"/>
+			<arg value="-O${opt}"/>
+			<arg value="${param1}"/>
+			<arg value="${param2}"/>
+			<arg value="${param3}"/>
+			<arg value="${param4}"/>
+			<arg value="${param5}"/>
+			<arg value="-o"/>
+			<arg value="${outdir}${file.separator}${outfile}"/>
+			<arg value="@${filelist}"/>
+		</exec>
+		<echo message="outfile: ${outdir}${file.separator}${outfile}"/>
+	</target>
+	
+	
+	
+	
+	<!-- link -->
+	<!-- links all *.o from objdir -->
+	<target name="nativelink" depends="nativelinkdo,strip"/>
+	<target name="nativelinkdo" depends="requiremain,requireoutfile">
+		<echo message="${ant.file} :: nativelink basedir:${basedir}"/>
+		<echo message="objdir: ${objdir}"/>
+		<echo message="compiler: ${compiler}"/>
+		<echo message="linkparam: ${linkparam}"/>
+		<echo message="main: ${main}"/>
+		<apply executable="${compiler}"
+				verbose="true"
+				parallel="true"
+				failonerror="true"
+				dir=""
+				dest="${outdir}"
+				relative="true"
+				ignoremissing="no">
+			<arg value="${linkparam}"/>
+			<arg value="-g${dbg}"/>
+			<arg value="-O${opt}"/>
+			<arg value="${param1}"/>
+			<arg value="${param2}"/>
+			<arg value="${param3}"/>
+			<arg value="${param4}"/>
+			<arg value="${param5}"/>
+			<arg value="--main=${main}" />
+			<arg value="-o"/>
+			<targetfile/>
+			<srcfile/>
+			<fileset dir="">
+				<include name="${objdir}/**/*.o"/>
+				<include name="${objdir}/*.o"/>
+			</fileset>
+			<mapper type="merge" 
+				to="${outdir}${file.separator}${outfile}"/>
+		</apply>
+	</target>
+	
+	
+	<!-- build in one step -->
+	<target name="nativebuild" depends="nativebuildcompile,strip"/>
+	<target name="nativebuildcompile" depends="requireclasspath,requiremain,requireoutfile">
+		<delete file="${outdir}${file.separator}${outfile}"/>
+		<exec executable="${compiler}"
+				logerror="${outdir}${file.separator}${outfile}.error.log"
+				append="true"
+				dir="${basedir}">
+			<arg value="--classpath=${classpath}"/>
+			<arg value="-Wall"/>
+			<arg value="-g${dbg}"/>
+			<arg value="-O${opt}"/>
+			<arg value="${param1}"/>
+			<arg value="${param2}"/>
+			<arg value="${param3}"/>
+			<arg value="${param4}"/>
+			<arg value="${param5}"/>
+			<arg value="-o"/>
+			<arg value="${outdir}${file.separator}${outfile}"/>
+			<arg value="--main=${main}" />
+			<arg value="@${filelist}"/>
+		</exec>
+		<echo message="native app wrote to: ${outdir}${file.separator}${outfile}"/>
+	</target>
+	
+	<!-- strip -->
+	<target name="strip" unless="debug">
+		<condition property="stripfile" 
+			value="${outdir}${file.separator}${outfile}.exe">
+			<os family="Windows"/>
+		</condition>
+		<condition property="stripfile" 
+			value="${outdir}${file.separator}${outfile}">
+			<not>
+				<isset property="stripfile"/>
+			</not>
+		</condition>
+		<echo message="${stripexec} : ${stripfile}"/>
+		<exec executable="${stripexec}" dir="${basedir}">
+			<arg value="--strip-all"/>
+			<arg value="-p"/>
+			<arg value="${stripfile}"/>
+		</exec>
+	</target>
+</project>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+	<mime-type type="text/digest-md5">
+    	<comment xml:lang="en">MD5 Digest File</comment>
+		<glob pattern="*.md5"/>
+		<glob pattern="*.MD5"/>
+	</mime-type>
+	<mime-type type="text/digest-md4">
+		<comment xml:lang="en">MD4 Digest File</comment>
+		<glob pattern="*.md4"/>
+		<glob pattern="*.MD4"/>
+	</mime-type>
+	<mime-type type="text/digest-md2">
+		<comment xml:lang="en">MD2 Digest File</comment>
+		<glob pattern="*.md2"/>
+		<glob pattern="*.MD2"/>
+	</mime-type>
+	<mime-type type="text/digest-sha160">
+    	<comment xml:lang="en">SHA-160 Digest File</comment>
+		<glob pattern="*.sha1"/>
+		<glob pattern="*.sha160"/>
+		<glob pattern="*.SHA1"/>
+		<glob pattern="*.SHA160"/>
+	</mime-type>
+	<mime-type type="text/digest-sha256">
+    	<comment xml:lang="en">SHA-256 Digest File</comment>
+		<glob pattern="*.sha256"/>
+		<glob pattern="*.SHA256"/>
+	</mime-type>
+	<mime-type type="text/digest-sha384">
+		<comment xml:lang="en">SHA-384 Digest File</comment>
+		<glob pattern="*.sha384"/>
+		<glob pattern="*.SHA384"/>
+	</mime-type>
+	<mime-type type="text/digest-sha512">
+		<comment xml:lang="en">SHA-512 Digest File</comment>
+		<glob pattern="*.sha512"/>
+		<glob pattern="*.SHA512"/>
+	</mime-type>
+	<mime-type type="text/digest-ripemd128">
+		<comment xml:lang="en">RIPEMD128 Digest File</comment>
+		<glob pattern="*.ripemd128"/>
+		<glob pattern="*.RIPEMD128"/>
+	</mime-type>
+	<mime-type type="text/digest-ripemd160">
+		<comment xml:lang="en">RIPEMD160 Digest File</comment>
+		<glob pattern="*.ripemd160"/>
+		<glob pattern="*.RIPEMD160"/>
+	</mime-type>
+	<mime-type type="text/digest-whirlpool">
+		<comment xml:lang="en">WHIRLPOOL Digest File</comment>
+		<glob pattern="*.whirlpool"/>
+		<glob pattern="*.WHIRLPOOL"/>
+	</mime-type>
+	<mime-type type="text/digest-tiger">
+		<comment xml:lang="en">TIGER Digest File</comment>
+		<glob pattern="*.tiger"/>
+		<glob pattern="*.TIGER"/>
+	</mime-type>
+	<mime-type type="text/digest-haval">
+		<comment xml:lang="en">HAVAL Digest File</comment>
+		<glob pattern="*.haval"/>
+		<glob pattern="*.HAVAL"/>
+	</mime-type>
+</mime-info>

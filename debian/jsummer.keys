@@ -1,0 +1,35 @@
+text/digest-md5:
+        ext=md5
+
+text/digest-md4:
+        ext=md4
+
+text/digest-md2:
+        ext=md2
+
+text/digest-sha160:
+        ext=sha160 sha1
+
+text/digest-sha256:
+        ext=sha256
+
+text/digest-sha384:
+        ext=sha384
+
+text/digest-sha512:
+        ext=sha512
+
+text/digest-ripemd128:
+        ext=ripemd128
+
+text/digest-ripemd160:
+        ext=ripemd160
+
+text/digest-whirlpool:
+        ext=whirlpool
+
+text/digest-tiger:
+        ext=tiger
+
+text/digest-haval:
+        ext=haval

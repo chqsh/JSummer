@@ -1,0 +1,25 @@
+Source: jsummer
+Section: x11
+Priority: optional
+Maintainer: Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>
+Build-Depends: debhelper (>= 4.0.0), sun-java5-jdk|sun-java6-jdk|java2-compiler, libswt3.2-gtk-java|libswt-gtk-3.2-java|libswt-gtk-3.3-java, ant
+# needed for native only: libswt3.2-gtk-gcj|swt-native-zerosys, gcj, libgcj-dev
+Standards-Version: 3.6.1
+
+Package: jsummer-java
+Architecture: all
+Conflicts: jsummer-native
+Depends: java-virtual-machine, java1-runtime|java2-runtime, libswt3.2-gtk-java|libswt-gtk-3.3-java|libswt-gtk-3.2-java
+Provides: jsummer
+Description: java build of JSummer
+ program to compute and check MD5, MD4, MD2, SHA-160, SHA-256, SHA-384, SHA-512, RIPEMD128, RIPEMD160, WHIRLPOOL, TIGER, HAVAL message digest
+ console- and GUI-version
+
+#Package: jsummer-native
+#Architecture: any
+#Conflicts: jsummer-java
+#Depends: libswt3.2-gtk-gcj|swt-native-zerosys, ${shlibs:Depends}
+#Provides: jsummer
+#Description: native build of JSummer
+# program to compute and check MD5, SHA-160 and SHA-256 message digest
+# console- and GUI-version

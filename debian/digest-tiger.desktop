@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Comment=TIGER Digest
+Type=MimeType
+MimeType=text/digest-tiger
+Patterns=*.tiger;
+Icon=JSummer.xpm
+X-KDE-AutoEmbed=false                                                           
+[Property::X-KDE-NativeExtension]                                               
+Type=QString                                                                    
+Value=.tiger

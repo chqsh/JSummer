@@ -1,0 +1,116 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH JSUMMER 1 "March  7, 2006"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+.B jsummer
+.br
+.B jsummerx
+.br
+.B JSummer
+.br
+.B JSummerX
+.br
+.SH SYNOPSIS
+.B jsummer
+-h|-V | [options] -c checkfile | [-f tofile] file(s) | dir(s)
+.br
+.SH DESCRIPTION
+This manual page documents briefly the
+.B jsummer
+command.
+.B jsummerx 
+uses the same syntax.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+\fBjsummer\fP is a program to compute and check MD5, SHA-160 and SHA-256 message digest.
+.SH OPTIONS
+.TP
+.B \-h | \-? 
+display help
+.TP
+.B \-V
+show version and exit
+.TP
+.B \-m alg
+use 'alg' as algorithm where 'alg' may be (case insensitive) one of:
+ MD5 for MD5 message digests
+ SHA|SHA1|SHA-1|SHA160|SHA-160 for SHA1 (160-bit) checksums
+ SHA-256|SHA256|SHA2|SHA2-1 for SHA-256 (256 bit) checksums
+.TP
+.B \-c f
+check hashsums listed in checkfile f
+If no hash-alg is forced with the -m option and the file has one of the following extensions, the coresponding hash-alg will be used:
+.br 
+ .md5 .sha1 .sha160 .sha256
+.br 
+If the hashalg can not be determined by the fileextension, the default will be used.
+.TP
+.B \-b
+thread as binary (only cosmetic effect at the moment)
+.TP
+.B \-g
+try to be GNU - md5sum | sha1sum - compilant
+.TP
+.B \-r
+do not use relative path
+.TP
+.B \-u
+uppercase hash
+.TP
+.B \-e
+print a warning for empty dirs
+.TP
+.B \-s
+don't use systemindependent pathseparator
+.TP
+.B \-v
+be more verbose
+  in GNU-comilant mode print filenames while checking
+  in normal mode print some additional infos
+.TP
+.B \-f f
+save checksum to file f
+.TP
+.B \-d n
+set debuglevel (0 < n < 125)
+.br
+.SH EXAMPLES
+calculate sha-160 message digest of  file1 and file2:
+.br
+.B jsummer -m sha1 file1 file2
+.br
+hash a directory recurive and create a checkfile:
+.br
+.B jsummer -f savetocheckfile dir
+.br
+check all files listed in a checkfile:
+.br
+.B jsummer -c checkfile.md5
+
+.SH AUTHOR
+.B jsummer 
+was written by Klaus Zerwes <zerosys@users.sourceforge.net>.
+.br
+More Informations may be available here:
+.br
+.B <http://www.zero-sys.net>
+.br
+.PP
+This manual page was written by Klaus Zerwes zero-sys.net <zerosys@users.sourceforge.net>,
+for the Debian project (but may be used by others).

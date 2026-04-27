@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!--
+	ant helper-buildfile for createstarter
+	Apache Ant version 1.6.2
+	(c) 2006 Klaus Zerwes zero-sys.net
+	
+	$Id: createstarter.xml,v 1.3 2008-02-08 23:23:00 zerwes Exp $
+-->
+
+
+<project name="createstarter" basedir="../" default="createstarter">
+
+	
+
+	<target name="missingoutfile">
+		<fail message="missing outfile">
+			<condition>
+				<not>
+					<isset property="outfile"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	<target name="missingoutdir">
+		<fail message="missing outdir">
+			<condition>
+				<not>
+					<isset property="outdir"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
+	<target name="missingswtloacation">
+		<fail message="missing swtlocation">
+			<condition>
+				<not>
+					<isset property="package.swt.location"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	<target name="missingswtjar">
+		<fail message="missing swtjar">
+			<condition>
+				<not>
+					<isset property="package.swt.jar"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	<target name="missinginstalldirjar">
+		<fail message="missing package.installdir.jar">
+			<condition>
+				<not>
+					<isset property="package.installdir.jar"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	<target name="missingclassname">
+		<fail message="missing classname">
+			<condition>
+				<not>
+					<isset property="classname"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	<target name="missingname">
+		<fail message="missing package.name">
+			<condition>
+				<not>
+					<isset property="package.name"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+
+	<target name="jarstarter" 
+		depends="missinginstalldirjar,missingoutdir,missingoutfile">
+		<echo append="false"
+			file="${outdir}/${outfile}.sh">#!/bin/bash
+java -jar ${package.installdir.jar}/${outfile}.jar "$@"
+		</echo>
+	</target>
+	<target name="createstarter"
+		depends="missinginstalldirjar,
+				missingoutfile,missingoutdir,
+				missingname,missingclassname,
+				missingswtjar,missingswtloacation">
+		<condition property="classp2" value="${path.separator}${classpathadd}">
+			<isset property="classpathadd"/>
+		</condition>
+		<condition property="classp2" value="">
+			<not>
+				<isset property="classp2"/>
+			</not>
+		</condition>
+		<property name="swtdir" location="${package.swt.location}"/>
+		<property name="swtjar" location="${package.swt.jar}"/>
+		<echo append="false"
+			file="${outdir}/${outfile}.sh">#!/bin/bash
+# requires swt-libs 
+# you may need to set LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${swtdir}
+
+FALLBACKJAR="${swtjar}${classp2}"
+
+# using alternatives
+JARS="";
+
+# as soon as the prerm-bug is fixed in libswt-gtk-3.2-java
+# add "swt" as firs entry!
+TRYALT="libswt-3.3-java libswt-3.2-java libswt-3.1-java swt-java";
+for a in $TRYALT; do
+	if [ -f /etc/alternatives/$a ]; then
+		#echo "using alternatives: $a"
+		. /etc/alternatives/$a
+		break
+	fi
+done
+
+if [ "$JARS" = "" ]; then
+	if [ "$FALLBACKJAR" = "" ]; then
+		echo "unable to find a SWT-jar";
+		exit 1
+	else
+		JARS=$FALLBACKJAR
+	fi
+fi
+
+# CLASSPATH
+#CLASSPATH="${package.installdir.jar}/${package.appname}.jar${path.separator}${swtjar}${classp2}"
+CLASSPATH="${package.installdir.jar}/${outfile}.jar${path.separator}$JARS";
+
+# sun java
+#java -cp $CLASSPATH ${package.name}.${package.classname}
+java -cp $CLASSPATH -Djava.library.path=$LD_LIBRARY_PATH ${package.name}.${classname} "$@"
+
+# gij 
+#gij -cp $CLASSPATH ${package.name}.${classname} "$@"
+
+# jamvm (needs LD_LIBRARY_PATH !!! uncomment it!)
+#jamvm -cp $CLASSPATH ${package.name}.${classname} "$@"
+
+# sablevm (needs LD_LIBRARY_PATH !!! uncomment it!)
+#sablevm -p java.library.path=$LD_LIBRARY_PATH --classpath $CLASSPATH ${package.name}.${classname} "$@"
+
+# kaffe
+#kaffe -cp $CLASSPATH ${package.name}.${classname} "$@"
+</echo>
+		<chmod perm="755" verbose="true"
+					file="${outdir}/${outfile}.sh"/>
+		<echo message="outfile : ${outdir}/${outfile}.sh"/>
+	</target>
+</project>

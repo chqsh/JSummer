@@ -1,0 +1,3 @@
+text/digest-md5; jsummerx '%s' ; edit=jsummerx '%s' ; test=test "$DISPLAY" != "" ; description="Check digest" ; priority=1
+text/digest-sha160; jsummerx '%s' ; edit=jsummerx '%s' ; test=test "$DISPLAY" != "" ; description="Check digest" ; priority=1
+text/digest-sha256; jsummerx '%s' ; edit=jsummerx '%s' ; test=test "$DISPLAY" != "" ; description="Check digest" ; priority=1

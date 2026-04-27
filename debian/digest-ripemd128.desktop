@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Comment=RIPEMD128 Digest
+Type=MimeType
+MimeType=text/digest-ripemd128
+Patterns=*.ripemd128;
+Icon=JSummer.xpm
+X-KDE-AutoEmbed=false                                                           
+[Property::X-KDE-NativeExtension]                                               
+Type=QString                                                                    
+Value=.ripemd128

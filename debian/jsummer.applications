@@ -1,0 +1,7 @@
+jsummer
+	requires_terminal=false
+	expects_uris=false
+	command=jsummerx -c
+	can_open_multiple_files=true
+	name=JSummer
+	mime_types=text/digest-md5,text/digest-md4,text/digest-md2,text/digest-sha160,text/digest-sha256,text/digest-sha384,text/digest-sha512,text/digest-ripemd128,text/digest-ripemd160,text/digest-whirlpool,text/digest-tiger,text/digest-haval

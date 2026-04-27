@@ -1,0 +1,12 @@
+build/out/JSummer.jar /usr/share/java
+build/out/JSummerX.jar /usr/share/java
+build/out/JSummer.sh /usr/bin
+build/out/JSummerX.sh /usr/bin
+icon/JSummer.xpm /usr/share/pixmaps
+debian/jsummer.mime /usr/share/mime-info
+debian/jsummer.keys /usr/share/mime-info
+debian/JSummerX.desktop /usr/share/applications
+debian/jsummer.xml /usr/share/mime/packages
+debian/digest-*.desktop /usr/share/mimelnk/application
+debian/allfiles.desktop /usr/share/apps/konqueror/servicemenus
+debian/jsummer.applications /usr/share/application-registry

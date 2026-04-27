@@ -1,0 +1,1499 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+	ant buildfile for JSummer
+	Apache Ant version 1.6.2
+	(c) 2005 Klaus Zerwes zero-sys.net
+	
+	$Id: build.xml,v 1.65 2008-03-06 11:01:15 zerwes Exp $
+-->
+
+<project name="JSummer" default="help" basedir="../">
+
+	<description>
+		Ant buildfile for JSummer
+		(c) Klaus Zerwes zero-sys.net 2005 - 2008
+		required: Apache Ant version 1.6.2
+		type 'ant help' or 'ant -p' for a list of targets
+	</description>
+	
+	
+	<!-- load userdefined properties -->
+	<property file="${package.build}/build.properties"/>
+	
+	
+	<!-- define properties -->
+	<property name="package.appname" value="${ant.project.name}"/>
+	<property name="package.basedir" value="${basedir}"/>
+	
+	
+	<!-- installdirs -->
+	<property name="package.installdir.base" 
+		value="/usr/local"/>
+	<property name="package.installdir.bin" 
+		value="${package.installdir.base}/bin"/>
+	<property name="package.installdir.lib" 
+		value="${package.installdir.base}/lib"/>
+	<property name="package.installdir.jar" 
+		value="${package.installdir.base}/share/java"/>
+	
+
+	<!-- ====================================================
+	debugbuild: ant -Ddebugbuild=true
+	==================================================== -->
+	<condition property="package.debugbuild">
+		<equals arg1="${debugbuild}" arg2="true" casesensitive="false"/>
+	</condition>
+	<condition property="package.debugbuild" value="false">
+		<not>
+			<isset property="package.debugbuild"/>
+		</not>
+	</condition>
+	<echo message="debugbuild: ${package.debugbuild}"/>
+	
+	<!-- ====================================================
+	executables: you may change this to compile with different versions 
+	you may overide them by using 'ant -Dpackage.gcjexec=gcj-3.4 <target>'
+	==================================================== -->
+	<property name="package.javacexec" value="javac"/>
+	<property name="package.gcjexec" value="gcj"/>
+	
+	
+	<!-- ====================================================
+	java target / optimisation version
+	====================================================  -->
+	<property name="package.java.targetversion" value="1.4"/>
+	<property name="package.java.sourceversion" value="1.4"/>
+	<property name="package.java.optimize" value=""/>
+	
+	
+	<!-- ====================================================
+	Compiler Options :: native code debug and optimization values
+	==================================================== -->
+	<condition property="package.native.dbg" value="3">
+		<and>
+			<not>
+				<isset property="package.native.dbg"/>
+			</not>
+			<istrue value="${package.debugbuild}"/>
+		</and>
+	</condition>
+	<condition property="package.native.opt" value="0">
+		<and>
+			<not>
+				<isset property="package.native.opt"/>
+			</not>
+			<istrue value="${package.debugbuild}"/>
+		</and>
+	</condition>
+	<property name="package.native.dbg" value="0"/>
+	<property name="package.native.opt" value="3"/>
+	
+
+	<!-- ====================================================
+	OSdependent :: the script to call for compiling image-resources
+	==================================================== -->
+	<condition 
+			property="package.rescompileexec"
+			value="rescompile.bat">
+		<os family="Windows"/>
+	</condition>
+	<condition 
+		property="package.rescompileexec"
+		value="rescompile.sh">
+		<not>
+			<isset property="package.rescompileexec"/>
+		</not>
+	</condition>
+
+	
+	<!-- ====================================================
+	only windows needs launcher and server: use -Dforceserver=true
+	==================================================== -->
+	<condition property="package.build.skippserver">
+		<not>
+			<or>
+				<os family="Windows"/>
+				<istrue value="${forceserver}"/>
+			</or>
+		</not>
+	</condition>
+	
+	
+	
+	<!-- ====================================================
+	names of the executables: on windows .exe is appended automatical
+	==================================================== -->
+	<property name="package.executable.console" value="JSummer" />
+	<property name="package.executable.gui" value="JSummerX" />
+	<property name="package.executable.launcher" value="JSummerXL" />
+	<property name="package.executable.server" value="JSummerXS" />
+	
+
+	
+	
+	
+	<!-- ====================================================
+	app icon name in icon.src
+	==================================================== -->
+	<property name="package.icons.appicon" value="JSummer.ico"/>
+	
+	<!-- icon style :: TODO: this should be dynamical set from config -->
+	<property name="package.icons.style" value="1"/>
+	
+	
+	<!-- ====================================================
+		directories
+	==================================================== -->
+	<property name="package.src" value="src" />
+	<property name="package.build" value="build" />
+	<property name="package.buildobj" value="obj" />
+	<property name="package.buildout" value="out" />
+	<property name="package.buildclasses" value="classes" />
+	<property name="package.dir" value="com/de/zerosys/JSummer" />
+	<property name="package.gnu-crypto.dir" value="gnu/crypto"/>
+	<property name="package.gnu-crypto.src" value="${package.src}"/>
+	<property name="package.icons.src" value="icon"/>
+	<property name="package.win32" value="win32"/>
+	
+	<!-- ====================================================
+	package name
+	==================================================== -->
+	<property name="package.name" value="com.de.zerosys.JSummer" />
+	
+	
+	<!-- ====================================================
+	classnames of the main-classes
+	==================================================== -->
+	<property name="package.classname.console" value="JSummerConsole"/>
+	<property name="package.classname.gui" value="JSummerX"/>
+	<property name="package.classname.launcher" value="JSummerXLauncher"/>
+	<property name="package.classname.server" value="JSummerXServer"/>
+	
+	<!-- ====================================================
+		link-parameter for windows
+	==================================================== -->
+	<condition property="package.linkparam" value="-mwindows">
+		<and>
+			<os family="Windows"/>
+			<not>
+				<istrue value="${package.debugbuild}"/>
+			</not>
+		</and>
+	</condition>
+	<condition 
+		property="package.linkparam"
+		value="-I.">
+		<!-- fake value -->
+		<not>
+			<isset property="package.linkparam"/>
+		</not>
+	</condition>
+	
+	<!-- ====================================================
+	SWT stuff :: location: adjust path depending on OS
+	==================================================== -->
+	<condition 
+		property="package.swt.location"
+		value="../swt/current/gtk">
+		<os name="Linux"/>
+	</condition>
+	<condition 
+		property="package.swt.location"
+		value="../swt/current/win32">
+		<os family="Windows"/>
+	</condition>
+	<!-- TODO: carbon -->
+	<condition 
+		property="package.swt.location"
+		value="../swt/current/motif">
+		<not>
+			<isset property="package.swt.location"/>
+		</not>
+	</condition>
+	
+	<!-- ====================================================
+		lib-extension depending on OS dll|so
+	==================================================== -->
+	<condition property="package.swt.libext" value="dll">
+		<os family="Windows"/>
+	</condition>
+	<condition 
+		property="package.swt.libext"
+		value="so">
+		<not>
+			<isset property="package.swt.libext"/>
+		</not>
+	</condition>
+
+	<!-- ====================================================
+		SWT stuff :: swt.jar
+	==================================================== -->
+	<condition property="package.swtjarprovided">
+		<isset property="package.swt.jar"/>
+	</condition>
+	<condition property="package.swt.jar" 
+			value="${package.swt.location}/swt.jar">
+		<not>
+			<isset property="package.swt.jar"/>
+		</not>
+	</condition>
+	<condition property="package.swtjaravailable">
+		<available file="${package.swt.jar}" />
+	</condition>
+
+	<!-- ====================================================
+		SWT stuff :: swt src
+	==================================================== -->
+	<property name="package.swt.src" value="${package.swt.location}/src"/>
+	<condition property="package.swtsrcavailable" value="true">
+		<available file="${package.swt.src}" type="dir"/>
+	</condition>
+
+	<!-- ====================================================
+		SWT stuff :: swt dir-struct
+	==================================================== -->
+	<property name="package.swt.dir" value="org/eclipse/swt"/>
+
+	
+	
+	<!-- ====================================================
+		strange way to set the classpath ... 
+		MUST BE AFTER swt-stuff !!!
+	==================================================== -->
+	<condition property="package.classpathprovided">
+		<isset property="package.classpath"/>
+	</condition>
+	<condition property="package.classpath"
+			value="${package.classpath}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}">
+		<isset property="package.classpath"/>
+	</condition>
+	<condition property="package.classpath"
+		value="${package.classpathadd}${path.separator}${package.swt.jar}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}">
+		<isset property="package.classpathadd"/>
+	</condition>
+	<condition property="package.classpath"
+		value="${package.swt.jar}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}">
+		<not>
+			<isset property="package.classpath"/>
+		</not>
+	</condition>
+	<echo message="package.classpath set to ${package.classpath}"/>
+
+	
+	
+
+	<!-- ====================================================
+	define filesets
+	==================================================== -->
+	<fileset dir="${package.basedir}" id="files.package" >
+		<include name="${package.src}/${package.dir}/*.java" />
+		<exclude name="${package.src}/${package.dir}/export*.java" />
+	</fileset>
+	<fileset dir="${package.swt.src}" id="files.swt">
+		<include name="*.java" />
+		<include name="**/*.java" />
+	</fileset>
+	<fileset dir="${package.icons.src}" id="files.icons">
+		<include name="${package.icons.appicon}" />
+		<include name="${package.icons.style}/*.png"/>
+	</fileset>
+	
+	
+	<!-- versions -->
+	<import file="dynversion.xml" optional="true" />
+	<property file="${package.build}/version.properties"/>
+	
+	
+
+	<!-- ====================================================
+			swt shared lib name
+			see target setswtlibfilename
+	====================================================  -->
+	<condition property="package.swtsharedlibprovided">
+		<isset property="package.swtsharedlibname"/>
+	</condition>
+	<property name="package.swtsharedlibpath" value="${package.buildout}"/>
+	<property name="package.swtsharedlibaddition" value="zerosys"/>
+
+	<condition property="package.swtsharedlibname2val" 
+			value="-l${package.swtsharedlibname2}">
+		<isset property="package.swtsharedlibname2"/>
+	</condition>
+	<condition property="package.swtsharedlibname2val" value="-L."> <!-- fake value ;-) -->
+		<not>
+			<isset property="package.swtsharedlibname2"/>
+		</not>
+	</condition>
+		
+	
+	<!-- params for swtlib -->
+	<condition property="package.swtlib.fpic" value="-L."> <!-- fake value ;-) -->
+		<os family="Windows"/>
+	</condition>
+	<condition property="package.swtlib.fpic" value="-fPIC">
+		<not>
+			<isset property="package.swtlib.fpic" />
+		</not>
+	</condition>
+	<condition property="package.swtlib.ldparam1" 
+			value="-enable-runtime-pseudo-relocs">
+		<os family="Windows"/>
+	</condition>
+	<condition property="package.swtlib.ldparam1" value="-L."> <!-- fake value ;-) -->
+		<not>
+			<isset property="package.swtlib.ldparam1"/>
+		</not>
+	</condition>
+		
+		
+
+	<!-- ====================================================
+		import optional win32 stuff: WiX etc. ...
+	==================================================== -->
+	<condition property="package.iswinows">
+		<os family="Windows"/>
+	</condition>
+    <condition property="includewin32file" value="build.xml">
+    	<isset property="package.iswinows" />
+    </condition>
+    <condition property="includewin32file" value="ignorewin32.xml">
+    	<not>
+    		<isset property="includewin32file" />
+    	</not>
+    </condition>
+    <import file="${package.win32}/${includewin32file}" optional="true"  />
+	
+	
+	
+	
+	<!-- ====================================================
+	=========================================================
+		START TARGETS
+	=========================================================
+	====================================================  -->
+	
+	<!-- TODO: help 4 -all targets -->
+	<target name="help-compiler">
+		<echo>
+Interesting properties :
+you may adjust them to your needs using 
+the ant-option -D&lt;property&gt;=&lt;value&gt;
+	
+java-compiler executable:
+ - package.javacexec [${package.javacexec}]
+gcj native comiler executable:
+ - package.gcjexec [${package.gcjexec}]
+	
+java compiler target / source version
+ - package.java.targetversion [${package.java.targetversion}]
+ - package.java.sourceversion [${package.java.sourceversion}]
+additional java compiler arguments
+ - package.java.optimize [${package.java.optimize}]
+	
+native compiler debug-value (0 - min; 3 - max)
+ - package.native.dbg [${package.native.dbg}]
+native compiler optimization-value (0 - min; 3 - max)
+ - package.native.opt [${package.native.opt}]
+		</echo>
+	</target>
+	
+	<target name="help-swt">
+		<echo>
+Interesting properties :
+you may adjust them to your needs using 
+the ant-option -D&lt;property&gt;=&lt;value&gt;
+	
+swt-locations
+ - package.swt.location [${package.swt.location}]
+ - package.swt.src [${package.swt.src}]
+ - package.swt.jar [${package.swt.jar}]
+	
+swt-lib
+ - package.swtsharedlibname [${package.swtsharedlibname}]
+ - package.swtsharedlibname is build from:
+   swt-[package.swtsharedlibaddition]-[package.swt.version]-[package.swt.platform]
+   package.swtsharedlibaddition [${package.swtsharedlibaddition}]
+   package.swt.version and package.swt.platform are set dynamical
+ - package.swtsharedlibpath [${package.swtsharedlibpath}]
+		</echo>
+	</target>
+	
+	<target name="help-install">
+		<echo>
+Interesting properties :
+you may adjust them to your needs using 
+the ant-option -D&lt;property&gt;=&lt;value&gt;
+
+install-paths
+ - package.installdir.base [${package.installdir.base}]
+ - package.installdir.bin  [${package.installdir.bin}]
+ - package.installdir.lib  [${package.installdir.lib}]
+ - package.installdir.jar  [${package.installdir.jar}]
+
+for jar-install: 
+the properties package.swt.jar and package.classpathadd are used
+to build the classpath for a simple installscript.
+		</echo>
+	</target>
+	
+	<target name="help-classpath">
+		<echo>
+Interesting properties :
+you may adjust them to your needs using 
+the ant-option -D&lt;property&gt;=&lt;value&gt;
+
+package.classpathadd: the value of this property will 
+	be added as a prefix to the classpath
+package.swt.jar [${package.swt.jar}]
+		</echo>
+	</target>
+
+	<target name="help-build-java">
+		<echo>
+The main targets to build tha java-app are:
+			jar
+			jar-install
+	
+maybe helpfull properties:
+			package.swt.location
+			package.swt.jar
+			package.installdir.base
+			package.installdir.bin
+			package.installdir.jar
+			package.classpathadd
+		</echo>
+	</target>
+
+	
+	<target name="help-build-native-shared">
+		<echo>
+How to build a native app linked against the swt-lib?
+	
+targets:
+			native-shared-gui
+			native-console
+			native-install
+
+
+expects swt-jar in '${package.swt.jar}'
+			
+example:
+ant -Dpackage.swt.jar=/usr/share/java/swt-zerosys-3139-gtk.jar \
+	-Dpackage.swtsharedlibpath=/usr/lib \
+	-Dpackage.swtsharedlibname=swt-zerosys-3139-gtk \
+	native-shared-gui
+
+helpfull properties:
+			package.swtsharedlibpath
+			package.swtsharedlibname
+			package.swt.location
+			package.swt.jar
+			package.swt.src
+			package.installdir.base
+			package.installdir.bin
+			package.installdir.lib
+		</echo>
+	</target>
+
+	<target name="help-build-native-static">
+		<echo>
+How to build a native app including swt-stuff from source?
+
+targets: 
+			native-static
+			native-install
+
+This build-type expects the swt-stuff in '${package.swt.location}'.
+This means the the swt-jar in '${package.swt.jar}'
+and the swt-src unpacked in '${package.swt.src}'.
+
+helpfull properties:
+			package.swt.location
+			package.swt.jar
+			package.swt.src
+			package.installdir.base
+			package.installdir.bin
+
+		</echo>
+	</target>
+
+	<target name="help" description="help" >
+		<echo message="type 'ant -p' for a list of targets"/>
+		<echo>
+help-targets for setting properties:
+- help-compiler properties affecting the compilers
+- help-swt properties affecting SWT
+- help-install properties affecting install-targets
+- help-classpath properties affecting classpath
+- problems report possible problems
+
+help-targets for building:
+- help-build-java
+- help-build-native-shared
+- help-build-native-static</echo>
+	</target>
+
+
+
+	<!-- ================================= 
+          target: problems              
+    ================================= -->
+	<target name="problems" 
+    	description="report possible problems" 
+    	depends="missingswtjar,missingswtsrc" >
+		<echo message="no problems detected" />
+	</target>
+	<target name="missingswtjar" unless="package.swtjaravailable">
+		<echo message="missing swt.jar !!! [${package.swt.jar}]"/>
+		<echo message="please tell me the path to swt.jar using package.swt.jar"/>
+		<exec executable="false" 
+			failifexecutionfails="true" failonerror="true"/>
+	</target>
+	<target name="missingswtsrc" unless="package.swtsrcavailable">
+		<echo message="missing swt-src-dir ! [${package.swt.src}]"/>
+		<echo message="swt-src is needed for swt-native-builds"/>
+		<echo message="(exept you use a lib from your system)"/>
+		<echo message="please tell me the path to swt.jar using package.swt.src"/>
+		<exec executable="false" 
+			failifexecutionfails="true" failonerror="true"/>
+	</target>
+	
+
+	
+	
+
+	<!-- =================================
+	create dirs for build ;-) 
+	================================= -->
+	<target name="builddir" depends="">
+		<mkdir dir="${package.build}/${package.buildclasses}" />
+		<mkdir dir="${package.build}/${package.buildout}" />
+		<mkdir dir="${package.build}/${package.buildobj}"/>
+		<mkdir dir="${package.build}/${package.buildobj}/${package.dir}"/>
+		<!-- hack for building gnu.crypto subdirs -->
+		<mkdir dir="${package.build}/${package.buildobj}/${package.gnu-crypto.dir}"/>
+		<copy
+			verbose="false"
+			includeemptydirs="true"
+			todir="${package.build}/${package.buildobj}/${package.gnu-crypto.dir}"
+			overwrite="true">
+			<fileset dir="${package.gnu-crypto.src}/${package.gnu-crypto.dir}">
+				<exclude name="**/*.*"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+	<!-- create swt-subdirs - hack -->
+	<target name="mkswtsubdirs" depends="builddir"> 
+		<!-- hack to build dirs for swt -->
+		<mkdir dir="${package.build}/${package.buildobj}/${package.swt.dir}"/>
+		<copy
+			verbose="false"
+			includeemptydirs="true"
+			todir="${package.build}/${package.buildobj}/${package.swt.dir}"
+			overwrite="true">
+			<fileset dir="${package.swt.src}/${package.swt.dir}">
+				<exclude name="**/*.*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	
+
+
+	<!-- =================================
+	CLEAN targets
+	================================= -->
+	<target name="cleanclasses">
+		<delete failonerror="false">
+			<fileset dir="${package.build}/${package.buildclasses}">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="objclean">
+		<delete failonerror="false">
+			<fileset dir="${package.build}/${package.buildobj}">
+				<include name="${package.dir}/*.o"/>
+				<include name="${package.gnu-crypto.dir}}/**/*.o"/>
+				<include name="${package.icons.style}/**/*.o"/>
+				<include name="*.o"/>
+			</fileset>
+		</delete>
+	</target>
+	<target name="win32clean" if="package.win32incl">
+		<ant target="win32clean" 
+			antfile="${package.build}/${package.win32}/build.xml"/>
+	</target>
+
+	<!-- complete cleanup -->
+	<target name="distclean" 
+			description="like nothing happened ;-)" 
+			depends="clean">
+		<delete dir="${package.build}/${package.buildobj}" />
+	</target>
+
+	<target name="swtclean">
+		<delete 
+			dir="${package.build}/${package.buildobj}/${package.swt.dir}"/>
+	</target>
+	
+	<target name="clean" 
+			description="mostly clean except swt-object-files" 
+			depends="win32clean">
+		<delete dir="${package.build}/${package.buildobj}/${package.dir}"/>
+		<delete dir="${package.build}/${package.buildclasses}" />
+		<delete dir="${package.build}/${package.buildout}" />
+		<delete>
+			<fileset dir="${package.build}">
+				<include name="*.o"/>
+				<include name="*.dep"/>
+				<include name="*.ico"/>
+			</fileset>
+		</delete>
+	</target>
+
+
+
+	<target name="notyfyskip" if="package.build.skippserver">
+		<echo message="target will be ignored: ${package.build.skippserver}"/>
+		<echo message="use 'ant -Dforceserver=true target'"/>
+	</target>
+
+
+	
+	<!-- starterscripts -->
+	<target name="starterscript-console">
+		<ant antfile="${package.build}/createstarter.xml" 
+				inheritall="true" target="jarstarter">
+			<property name="outfile" 
+				value="${package.executable.console}"/>
+			<property name="outdir" 
+				value="${package.build}/${package.buildout}"/>
+			<!--<property name="classname" 
+				value="${package.classname.console}"/>-->
+		</ant>
+	</target>
+	<target name="starterscript-gui">
+		<ant antfile="${package.build}/createstarter.xml" inheritall="true">
+			<property name="outfile" 
+				value="${package.executable.gui}"/>
+			<property name="outdir" 
+				value="${package.build}/${package.buildout}"/>
+			<property name="classname" 
+				value="${package.classname.gui}"/>
+		</ant>
+	</target>
+	
+	
+	<!-- INSTALL -->
+	<target name="jar-install" 
+		description="installs jar and builds a simple startupscript"
+		depends="starterscript-console,starterscript-gui">
+		<fail message="unable to find jar! first run ant jar!">
+			<condition>
+				<not>
+					<and>
+						<available type="file" 
+							file="${package.build}/${package.buildout}/${package.executable.console}.jar"/>
+						<available type="file" 
+							file="${package.build}/${package.buildout}/${package.executable.gui}.jar"/>
+					</and>
+				</not>
+			</condition>
+		</fail>
+		<copy verbose="true"
+			todir="${package.installdir.jar}/" 
+			file="${package.build}/${package.buildout}/${package.executable.console}.jar"
+			failonerror="true"/>
+		<copy verbose="true"
+			todir="${package.installdir.jar}/" 
+			file="${package.build}/${package.buildout}/${package.executable.gui}.jar"
+			failonerror="true"/>
+		<copy verbose="true"
+			todir="${package.installdir.bin}/" 
+			file="${package.build}/${package.buildout}/${package.executable.console}.sh"
+			failonerror="true"/>
+		<chmod perm="755" verbose="true"
+			file="${package.installdir.bin}/${package.executable.console}.sh"/>
+		<copy verbose="true"
+			todir="${package.installdir.bin}/" 
+			file="${package.build}/${package.buildout}/${package.executable.gui}.sh"
+			failonerror="true"/>
+		<chmod perm="755" verbose="true"
+			file="${package.installdir.bin}/${package.executable.gui}.sh"/>
+		<echo message="you may need to edit '${package.installdir.bin}/${package.appname}.sh'"/>
+	</target>
+
+	<target name="native-install" description="installs the native app">
+		<fail message="unable to find ${package.executable.console}; please build it first!">
+			<condition>
+				<not>
+					<available type="file" 
+						file="${package.build}/${package.buildout}/${package.executable.console}"/>
+				</not>
+			</condition>
+		</fail>
+		<fail message="unable to find ${package.executable.gui}; please build it first!">
+			<condition>
+				<not>
+					<available type="file" 
+						file="${package.build}/${package.buildout}/${package.executable.gui}"/>
+				</not>
+			</condition>
+		</fail>
+		<copy verbose="true"
+			todir="${package.installdir.bin}/" 
+			file="${package.build}/${package.buildout}/${package.executable.console}"
+			failonerror="true"/>
+		<chmod perm="755" verbose="true"
+			file="${package.installdir.bin}/${package.executable.console}"/>
+		<copy verbose="true"
+			todir="${package.installdir.bin}/" 
+			file="${package.build}/${package.buildout}/${package.executable.gui}"
+			failonerror="true"/>
+		<chmod perm="755" verbose="true"
+			file="${package.installdir.bin}/${package.executable.gui}"/>
+	</target>
+	
+	
+	<!-- ================================= 
+          target: jar              
+    ================================= -->
+	<target name="jar" description="build all jar's">
+		<antcall target="jar-console" inheritall="true"/>
+		<antcall target="jar-gui" inheritall="true"/>
+		<antcall target="jar-guiserver" inheritall="true"/>
+		<antcall target="jar-guilauncher" inheritall="true"/>
+	</target>
+
+	<target name="java-console" depends="builddir,cleanclasses">
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<property name="classpath" value="${package.classpath}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.console}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+	</target>
+	<target name="jar-console" 
+			depends="builddir,cleanclasses,java-console,copy-icons" 
+			description="jar of the console-app">
+		<ant antfile="${package.build}/javajar.xml" inheritall="false">
+			<property name="name" value="${package.executable.console}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.console}"/>
+			<property name="version" value="${package.appversion}"/>
+		</ant>
+	</target>
+
+	<target name="java-gui" depends="builddir,cleanclasses">
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<property name="classpath" value="${package.classpath}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.gui}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+	</target>
+	<target name="jar-gui" 
+			depends="builddir,cleanclasses,java-gui,copy-icons" 
+			description="jar of the gui-app">
+		<ant antfile="${package.build}/javajar.xml" inheritall="false">
+			<property name="name" value="${package.executable.gui}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.gui}"/>
+			<property name="version" value="${package.appversion}"/>
+		</ant>
+	</target>
+
+	<target name="java-guiserver" 
+			depends="builddir,cleanclasses"
+			unless="package.build.skippserver">
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<property name="classpath" value="${package.classpath}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.server}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+	</target>
+	<target name="jar-guiserver" 
+			depends="builddir,cleanclasses,java-guiserver,copy-icons,notyfyskip" 
+			description="jar of the gui-app including server"
+			unless="package.build.skippserver">
+		<ant antfile="${package.build}/javajar.xml" inheritall="false">
+			<property name="name" value="${package.executable.server}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.server}"/>
+			<property name="version" value="${package.appversion}"/>
+		</ant>
+	</target>
+
+	<target name="java-guilauncher" 
+			depends="builddir,cleanclasses"
+			unless="package.build.skippserver">
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<property name="classpath" value="${package.classpath}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.launcher}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+	</target>
+	<target name="jar-guilauncher" 
+			depends="builddir,cleanclasses,java-guilauncher,copy-icons,notyfyskip" 
+			description="jar of the guilauncher"
+			unless="package.build.skippserver">
+		<ant antfile="${package.build}/javajar.xml" inheritall="false">
+			<property name="name" value="${package.executable.launcher}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.launcher}"/>
+			<property name="version" value="${package.appversion}"/>
+		</ant>
+	</target>
+
+
+	<!-- =================================
+	target native console
+	=================================  -->
+    <target name="native-console" 
+    		depends="builddir,cleanclasses,
+    				swtclean,objclean,java-console" 
+    		description="native console-app">
+        <ant antfile="${package.build}/javadepend.xml"/>
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativebuild">
+        	<property name="outfile" 
+        		value="${package.executable.console}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.console}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+    </target>
+
+	<!-- =================================
+	target native launcher
+	=================================  -->
+	<target name="native-launcher" 
+			depends="native-static-launcher"
+			description="native gui-launcher"/>
+	<target name="native-static-launcher" 
+			depends="builddir,cleanclasses,swtclean,objclean,
+					java-guilauncher,try-windres-launcher,notyfyskip"
+			description="native gui-launcher"
+			unless="package.build.skippserver">
+		<!-- builds a depend-file for JSummer GUI-Launcher -->
+        <ant antfile="${package.build}/javadepend.xml"/>
+		<!-- compile all from dep-file to build/obj/JSummerXL.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" 
+        		value="${package.executable.launcher}.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+		<!--link -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativelink">
+        	<property name="outfile" 
+        		value="${package.executable.launcher}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.launcher}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+	</target>
+	
+	<!-- =================================
+	target native-static (means: swt included)
+	=================================  -->
+	<target name="native-static" 
+		description="builds all native-static targets">
+		<!-- we use antcall, otherwise *clean* is only executed once! -->
+		<antcall target="native-console" inheritall="true"/>
+		<antcall target="native-static-launcher" inheritall="true"/>
+		
+		<!--<antcall target="native-static-gui" inheritall="true"/>-->
+		<antcall target="native-static-gui-swtdep" inheritall="true"/>
+		
+		<!--<antcall target="native-static-guiserver" inheritall="true"/>-->
+		<antcall target="native-static-guiserver-swtdep" inheritall="true"/>
+	</target>
+	
+	<target name="native-static-gui" 
+			depends="builddir,cleanclasses,java-gui,
+					objclean,swtclean,swtcompile,
+					native-resources,try-windres-gui"
+			description="native gui incl. swt">
+		<!-- builds a depend-file for JSummer GUI -->
+        <ant antfile="${package.build}/javadepend.xml"/>
+		<!-- compile all from dep-file to build/obj/JSummerX.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="${package.executable.gui}.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+		<!--link -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativelink">
+        	<property name="outfile" value="${package.executable.gui}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.gui}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+	</target>
+	<target name="native-static-guiserver" 
+			depends="builddir,cleanclasses,java-guiserver,
+					objclean,swtclean,swtcompile,
+					native-resources,try-windres-server,notyfyskip"
+			description="native gui-server incl. swt"
+			unless="package.build.skippserver">
+		<!-- builds a depend-file for JSummer GUIServer -->
+        <ant antfile="${package.build}/javadepend.xml"/>
+		<!-- compile all from dep-file to build/obj/JSummerXS.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="${package.executable.server}.o"/>
+        	<property name="outdir" value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+		<!--link -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativelink">
+        	<property name="outfile" value="${package.executable.server}"/>
+			<property name="main" value="${package.name}.${package.classname.server}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+	</target>
+	
+	
+	
+    <!-- ================================= 
+		target: native static with minimal swt
+	================================= -->
+	<target name="native-static-gui-swtdep" 
+			depends="builddir,cleanclasses,
+					objclean,swtclean,java-gui,
+					native-resources,try-windres-gui"
+			description="native gui incl. minimal swt">
+    	
+    	<!-- test if swt src is available -->
+    	<fail unless="package.swtsrcavailable" 
+    		message="missing swt src in package.swt.src ${package.swt.src}"/>
+		
+    	<!-- builds a depend-file for JSummer GUI -->
+        <ant antfile="${package.build}/javadepend.xml"/>
+		
+    	<!-- compile all from dep-file to build/obj/JSummerX.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="${package.executable.gui}.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+		
+    	<!-- recompile incl. swt-->
+		<antcall target="cleanclasses" inheritall="true"/>
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<!--new classpath !! -->
+			<property name="classpath" 
+				value="${package.swt.src}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.gui}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+    	
+		<!-- additional swt-stuff -->
+		<antcall target="swtminimaladdon" inheritall="true"/>
+    	
+		<!-- builds a depend-file for swt -->
+		<antcall target="swtclean" inheritall="true"/>
+		<delete failonerror="false">
+			<fileset dir="${package.build}/${package.buildclasses}">
+				<include name="${package.dir}/*.class"/>
+				<include name="${package.gnu-crypto.dir}/*.class"/>
+				<include name="${package.gnu-crypto.dir}/**/*.class"/>
+			</fileset>
+		</delete>
+		<ant antfile="${package.build}/javadepend.xml">
+        	<property name="todir" value="${package.swt.src}"/>
+       	</ant>
+    	
+		<!-- compile all from dep-file to build/obj/swt.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="swt.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+			<property name="param1" value="-fjni"/>
+        </ant>
+    	
+		<!--link -->
+        <ant antfile="${package.build}/nativecompile.xml" target="nativelink">
+        	<property name="outfile" value="${package.executable.gui}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.gui}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+	</target>
+
+	<target name="native-static-guiserver-swtdep" 
+			depends="builddir,cleanclasses,
+					objclean,swtclean,java-guiserver,
+					native-resources,try-windres-server,notyfyskip"
+			description="native gui-server incl. minimal swt"
+			unless="package.build.skippserver">
+		<!-- builds a depend-file for JSummerXS -->
+        <ant antfile="${package.build}/javadepend.xml"/>
+		<!-- compile all from dep-file to build/obj/JSummerXS.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="${package.executable.server}.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+		<!-- recompile incl. swt-->
+		<antcall target="cleanclasses" inheritall="true"/>
+		<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<!--new classpath !! -->
+			<property name="classpath" 
+				value="${package.swt.src}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}"/>
+			<property name="javafile" 
+				value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.server}.java"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>
+		<!-- additional swt-stuff -->
+		<antcall target="swtminimaladdon" inheritall="true"/>
+		<!-- builds a depend-file for swt -->
+		<antcall target="swtclean" inheritall="true"/>
+		<delete failonerror="false">
+			<fileset dir="${package.build}/${package.buildclasses}">
+				<include name="${package.dir}/*.class"/>
+				<include name="${package.gnu-crypto.dir}/*.class"/>
+				<include name="${package.gnu-crypto.dir}/**/*.class"/>
+			</fileset>
+		</delete>
+		<ant antfile="${package.build}/javadepend.xml">
+        	<property name="todir" value="${package.swt.src}"/>
+       	</ant>
+		<!-- compile all from dep-file to build/obj/swt.o -->
+        <ant antfile="${package.build}/nativecompile.xml" 
+        		target="nativecompile-dep">
+        	<property name="outfile" value="swt.o"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.buildobj}"/>
+        	<property name="classpath" value="${package.classpath}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+			<property name="param1" value="-fjni"/>
+        </ant>
+		<!--link -->
+        <ant antfile="${package.build}/nativecompile.xml" target="nativelink">
+        	<property name="outfile" value="${package.executable.server}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.server}"/>
+        	<property name="compiler" value="${package.gcjexec}"/>
+        	<property name="linkparam" value="${package.linkparam}"/>
+        	<property name="debugbuild" value="${package.debugbuild}"/>
+        	<property name="dbg" value="${package.native.dbg}"/>
+        	<property name="opt" value="${package.native.opt}"/>
+        </ant>
+	</target>
+	
+	<!-- additional SWT-Stuff not compiled automaitc (depend fails here) -->	
+	<target name="swtminimaladdon" depends="builddir,mkswtsubdirs">
+		<fileset dir="${package.swt.src}" id="files.swtadd">
+			<include name="${package.swt.dir}/internal/image/Png*.java"/>
+			<include name="${package.swt.dir}/internal/image/*ICO*.java"/>
+		</fileset>
+		<ant antfile="${package.build}/javacompile.xml" 
+			target="javacompilefileset" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" 
+				value="${package.java.targetversion}"/>
+			<property name="sourceversion" 
+				value="${package.java.sourceversion}"/>
+			<!--new classpath !! -->
+			<property name="classpath" 
+				value="${package.swt.src}${path.separator}${package.src}/${path.separator}${package.build}/${package.buildclasses}"/>
+			<property name="destdir" 
+				value="${package.build}${file.separator}${package.buildclasses}"/>
+			<reference refid="files.swtadd" torefid="files.compile"/>
+		</ant>
+	</target>
+	
+
+	<!-- =================================
+	native shared
+	=================================  -->
+	<target name="native-shared-gui"
+			depends="builddir,cleanclasses,objclean,
+				swtclean,java-gui,native-resources,
+				try-windres-gui"
+			description="native gui linked against external swt-lib">
+		<!-- builds a depend-file for JSummer GUI -->
+	    <ant antfile="${package.build}/javadepend.xml"/>
+		<!-- compile all from dep-file to build/obj/JSummerX.o -->
+	    <ant antfile="${package.build}/nativecompile.xml" 
+	    		target="nativecompile-dep">
+	    	<property name="outfile" value="${package.executable.gui}.o"/>
+	    	<property name="outdir" 
+	    		value="${package.build}/${package.buildobj}"/>
+	    	<property name="classpath" value="${package.classpath}"/>
+	    	<property name="compiler" value="${package.gcjexec}"/>
+	    	<property name="dbg" value="${package.native.dbg}"/>
+	    	<property name="opt" value="${package.native.opt}"/>
+	    </ant>
+		<!--link -->
+	    <ant antfile="${package.build}/nativecompile.xml" 
+	    		target="nativelink">
+	    	<property name="outfile" value="${package.executable.gui}"/>
+			<property name="main" 
+				value="${package.name}.${package.classname.gui}"/>
+	    	<property name="compiler" value="${package.gcjexec}"/>
+	    	<property name="linkparam" value="${package.linkparam}"/>
+			<property name="param1" value="-L${package.swtsharedlibpath}"/>
+			<property name="param2" value="-l${package.swtsharedlibname}"/>
+			<property name="param3" value="${package.swtsharedlibname2val}"/>
+			<property name="param4" value="${package.swtlib.ldparam1}"/>
+	    	<property name="debugbuild" value="${package.debugbuild}"/>
+	    	<property name="dbg" value="${package.native.dbg}"/>
+	    	<property name="opt" value="${package.native.opt}"/>
+	    </ant>
+	</target>
+	
+	
+    <!-- ================================= 
+		target: windres calls 
+	================================= -->
+	<target name="try-windres-gui" if="package.win32incl">
+		<antcall target="windres-gui" inheritall="true" />
+	</target>
+	<target name="try-windres-launcher" if="package.win32incl">
+		<antcall target="windres-launcher" inheritall="true" />
+	</target>
+	<target name="try-windres-server" if="package.win32incl">
+		<antcall target="windres-server" inheritall="true" />
+	</target>
+	
+	
+    <!-- ================================= 
+          target: swtcompile              
+	================================= -->
+    <target name="swtcompile" 
+    		depends="builddir,swtclean,mkswtsubdirs" 
+    		description="compile complete swt to native">
+		<ant antfile="${package.build}/nativecompile.xml" 
+				target="nativecompile">
+        	<property name="classpath" value="${package.classpath}"/>
+			<property name="compiler" value="${package.gcjexec}"/>
+			<property name="param1" value="-fjni"/>
+			<property name="srcdir" value="${package.swt.src}"/>
+			<reference refid="files.swt" torefid="files.compile"/>
+		</ant>
+    </target>
+    <target name="swtsharedcompile" 
+    		depends="builddir,swtclean,mkswtsubdirs" 
+    		description="compile swt to native for building a shared lib">
+		<ant antfile="${package.build}/nativecompile.xml" 
+				target="nativecompile">
+        	<property name="classpath" value="${package.classpath}"/>
+			<property name="compiler" value="${package.gcjexec}"/>
+			<property name="param1" value="-fjni"/>
+			<property name="param2" value="${package.swtlib.fpic}"/>
+			<property name="param3" value="${package.swtlib.ldparam1}"/>
+			<property name="srcdir" value="${package.swt.src}"/>
+			<reference refid="files.swt" torefid="files.compile"/>
+		</ant>
+    </target>
+    <target name="swtsharedlink" 
+    		depends="builddir,swtclean,mkswtsubdirs,setswtversionplatform" 
+    		description="compile swt to native for building a shared lib">
+		<ant antfile="${package.build}/nativecompile.xml" 
+				target="nativelink">
+        	<property name="classpath" value="${package.classpath}"/>
+			<property name="compiler" value="${package.gcjexec}"/>
+			<property name="param1" value="-fjni"/>
+			<property name="param2" value="${package.swtlib.fpic}"/>
+			<property name="param3" value="${package.swtlib.ldparam1}"/>
+			<property name="param1" value="-shared"/>
+			<property name="srcdir" 
+				value="${package.swt.src}"/>
+        	<property name="outdir" 
+        		value="${package.build}/${package.swtsharedlibpath}"/>
+			<property name="outfile" 
+				value="${package.swtsharedlibfile}"/>
+		</ant>
+    </target>
+
+
+
+
+    <!-- ================================= 
+          target: resource compile
+	================================= -->
+	<target name="native-resources" depends="builddir">
+		<mkdir 
+			dir="${package.build}${file.separator}${package.buildobj}${file.separator}${package.icons.style}"/>
+		<!--
+			PROBLEM !!!
+			the line must look like
+			gcj -c -o icon.o - -resource=EclipseLauncher.jpg EclipseLauncher.jpg
+			or 
+			gcj -c -o icon.o - -resource EclipseLauncher.jpg EclipseLauncher.jpg
+			ant apply supports only one <srcfile/> !!! BIG DEAL
+		-->
+		<!-- 
+			forwardslash !!! for stupid Windows !!!!
+		-->
+		<apply executable="${basedir}/${package.build}/${package.rescompileexec}"
+				parallel="false"
+				failonerror="true"
+				dir="${package.icons.src}"
+				dest="${package.build}/${package.buildobj}"
+				relative="true"
+				forwardslash="true"
+				ignoremissing="no"
+				verbose="true">
+			<arg value="${package.gcjexec}"/>
+			<srcfile/>
+			<targetfile/>
+			<fileset refid="files.icons"/>
+			<mapper type="glob" 
+				from="*" to="../${package.build}/${package.buildobj}/*"/>
+		</apply>
+	</target>
+
+	
+	
+
+	<!-- copy icons -->
+    <target name="copy-icons">
+		<copy todir="${package.build}/${package.buildclasses}/${package.dir}" 
+			overwrite="true"
+			verbose="false">
+			<fileset refid="files.icons"/>
+		</copy>
+    </target>
+
+
+	
+
+	<!-- set swt-version and -platform -->
+	<target name="setswtversionplatform" depends="setswtversion,setswtplatform"/>
+	<target name="setswtversion" 
+			depends="buildexportclasses" 
+			unless="package.swt.version">
+		<java
+			classname="${package.name}.exportSWTVersion"
+			failonerror="true"
+			classpath="${package.classpath}"
+			outputproperty="package.swt.version" />
+		<echo message="package.swt.version set to '${package.swt.version}'"/>
+	</target>
+	<target name="setswtplatform" 
+			depends="buildexportclasses" 
+			unless="package.swt.platform">
+		<java
+			classname="${package.name}.exportSWTPlatform"
+			failonerror="true"
+			classpath="${package.classpath}"
+			outputproperty="package.swt.platform" />
+		<echo message="package.swt.platform set to '${package.swt.platform}'"/>
+	</target>
+	
+	<!-- set package.swtsharedlibname and package.swtsharedlibfile -->
+	<target name="setswtlibfilename" 
+			unless="package.swtsharedlibfile"
+			depends="buildexportclasses,setswtversionplatform">
+		<property name="package.swtsharedlibname" 
+			value="swt-${package.swtsharedlibaddition}-${package.swt.version}-${package.swt.platform}"/>
+		<property name="package.swtsharedlibfile" 
+			value="lib${package.swtsharedlibname}.${package.swt.libext}"/>
+	</target>
+	
+	
+	<target name="buildexportclasses" 
+			depends="builddir,exportclassesuptodate" 
+			unless="skiprecompileclasses">
+		<!--<ant antfile="${package.build}/javacompile.xml" inheritall="false">
+			<property name="javacompiler" value="${package.javacexec}"/>
+			<property name="targetversion" value="${package.java.targetversion}"/>
+			<property name="classpath" value="${package.classpath}"/>
+			<property name="javafile" value="${package.src}${file.separator}${package.dir}${file.separator}${package.classname.launcher}.java"/>
+			<property name="destdir" value="${package.build}${file.separator}${package.buildclasses}"/>
+		</ant>-->
+		<apply executable="${package.javacexec}"
+				dir="" 
+				relative="no" 
+				parallel="no"
+				failonerror="yes"
+				ignoremissing="false">
+			<arg line="-classpath ${package.classpath}"/>
+			<arg line="-d ${package.build}/${package.buildclasses}/"/>
+			<arg line="-target ${package.java.targetversion}"/>
+			<arg line="-source ${package.java.sourceversion}"/>
+			<arg line="${package.java.optimize}"/>
+			<!--<arg value="-verbose"/>-->
+			<!--<fileset refid="files.package"/>-->
+			<fileset dir="${package.basedir}">
+				<include name="${package.src}/${package.dir}/exportSWT*.java" />
+			</fileset>
+		</apply>
+	</target>
+	<target name="exportclassesuptodate" depends="">
+		<uptodate property="skiprecompileclasses">
+			<srcfiles refid="files.package"/>
+			<mapper type="glob" 
+				from="${package.src}${file.separator}*.java" 
+				to="${package.build}/${package.buildclasses}/*.class"/>
+		</uptodate>
+	</target>
+	
+	
+
+	<!-- ================================= 
+	src - pack 
+	=================================  -->
+	<target name="copysrc" depends="builddir">
+		<delete file="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar"/>
+		<delete file="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar.gz"/>
+		<delete dir="${package.build}/${package.buildout}/${package.appname}-${package.appversion}"/>
+		<mkdir dir="${package.build}/${package.buildout}/${package.appname}-${package.appversion}"/>
+		<copy failonerror="true" verbose="false"
+			includeemptydirs="true"
+			todir="${package.build}/${package.buildout}/${package.appname}-${package.appversion}"
+			overwrite="true"
+			preservelastmodified="true">
+			<fileset dir="${package.basedir}">
+				<include name="Changelog"/>
+				<include name="INSTALL"/>
+				<include name="License.*"/>
+				<include name="zero-sys.net.url"/>
+				<include name="debian/*"/>
+				<include name="rpm/*"/>
+				<include name="${package.src}/**/*.java"/>
+				<!--<exclude name="${package.src}/**/export*.java"/>-->
+				<exclude name="${package.build}/dynversion.xml"/>
+				<include name="${package.build}/*.xml"/>
+				<include name="${package.build}/build.xml"/>
+				<include name="${package.build}/*.properties"/>
+				<include name="${package.build}/rescompile*"/>
+				<include name="${package.icons.src}/${package.icons.appicon}" />
+				<include name="${package.icons.src}/${package.appname}.xpm" />
+				<include name="${package.icons.src}/${package.icons.style}/*" />
+				<exclude name="CVS"/>
+				<exclude name="**/CVS"/>
+			</fileset>
+		</copy>
+		<chmod perm="755" 
+			file="${package.build}/${package.buildout}/${package.appname}-${package.appversion}/debian/rules"/>
+		<chmod perm="755" 
+			file="${package.build}/${package.buildout}/${package.appname}-${package.appversion}/${package.build}/${package.rescompileexec}"/>
+	</target>
+	<target name="source-package" 
+				description="create src - package" 
+				depends="srcpackage"/>
+	<target name="src" 
+				description="create src - package" 
+				depends="srcpackage"/>
+	<target name="srcpackage" 
+			description="create src - package" 
+			depends="builddir,copysrc">
+		<!-- tar and zip separate 
+			on windows tar can not fork a proc for gzip 
+			therefore we must do a 2-step arch + compression -->
+		<tar destfile="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar"
+				compression="none" longfile="gnu">
+			<tarfileset dir="${package.basedir}/${package.build}/${package.buildout}">
+				<include name="${package.appname}-${package.appversion}/*"/>
+				<include name="${package.appname}-${package.appversion}/**/*"/>
+			</tarfileset>
+		</tar>
+		<delete dir="${package.build}/${package.buildout}/${package.appname}-${package.appversion}"/>
+		<gzip src="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar" 
+			destfile="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar.gz"/>
+		<delete file="${package.build}/${package.buildout}/${package.appname}-${package.appversion}-src.tar"/>
+	</target>
+</project>
