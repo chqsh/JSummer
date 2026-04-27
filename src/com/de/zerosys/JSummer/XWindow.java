@@ -19,6 +19,7 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -27,6 +28,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -47,6 +49,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import org.eclipse.swt.dnd.*;
 
 class XWindow {
     
@@ -571,9 +574,92 @@ class XWindow {
     		}
     	});
 		
+		// DnD (Drag and Drop) - Drop Target
+		DropTarget target = new DropTarget(comp,DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+		target.setTransfer(new Transfer[]{FileTransfer.getInstance()});
+        target.addDropListener(
+          new DropTargetAdapter() {
+            // DropTargetListener is a abstract interface. So, you MUST override every method.
+            // But, DropTargetAdapter is only overrided used method.
+            
+            /* Now, we can ignore dropAccept() when we do only FileTransfer. */
+            /*
+            @Override
+            public void dropAccept(DropTargetEvent event) {
+                // Refer To:
+                // https://github.com/blizzy78/blizzys-backup/blob/master/de.blizzy.backup/src/de/blizzy/backup/settings/SettingsDialog.java
+                
+                System.out.printf("%s, {detail 0x%X, feedback 0x%X, operations 0x%X}\n\t currentDataType is %s\n",
+                    event.toString(), event.detail, event.feedback, event.operations,
+                    event.currentDataType.toString());
+                
+                if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                    event.detail = DND.DROP_NONE; // DO NOT accept drop operation. The "drop()" will NOT be called!
+                }
+            }
+            */
+             
+            @Override
+            public void drop(DropTargetEvent event) {
+                // System.out.println(event.toString());
+                String[] files = (String[]) event.data;
+                if (files == null || files.length <= 0)
+                    return;
+                
+                if (files.length == 1) {
+                    String file = files[0];
+                    /*
+                    final String  matchesRule = "(?i).*\\.(md5|sha1|sha256|sha384|sha512)$";
+                    final Pattern pattern = Pattern.compile(matchesRule);
+                    if (pattern.matcher(file).matches()) {
+                    */
+                    final String matchesRule = "(?i).*\\.("
+                        + config.getAllSupportedTypesExt("", "|") + ")$";
+                    if (file.matches(matchesRule)) {
+                        // now the msgbox is raised by XClearTable
+                        final XClearTable xclrtab = new XClearTable(XWindow.this);
+                        Event e = new Event();
+                        e.type = SWT.Selection;
+                        e.widget = table;
+                        xclrtab.widgetSelected(new SelectionEvent(e));
+                        if(!xclrtab.isClearTableDoit()){
+                            o.debug(this.toString()+" cleartable::aborted",XWindow.this.classDebugLevel);
+                            return;
+                        }
+                        config.setCheckMDFile(file, true);
+                        return;
+                    } else {
+                        config.addFileDir(file);
+                        return;
+                    }
+                }
+                
+                for (String file : files) {
+                    config.addFileDir(file);
+                }
+            }
+            
+            /*
+            @Override
+            public void dragOver(DropTargetEvent event) {
+                // TODO Auto-generated method stub
+            }
+            @Override
+            public void dragOperationChanged(DropTargetEvent event) {
+                // TODO Auto-generated method stub
+            }
+            @Override
+            public void dragLeave(DropTargetEvent event) {
+                // TODO Auto-generated method stub
+            }
+            @Override
+            public void dragEnter(DropTargetEvent event) {
+                // TODO Auto-generated method stub
+            }
+            */
+        });
         
         // status-bar
-        //final String initstr = "........";
         final Composite labelcomp = new Composite(this.xshell, SWT.NONE);
         final GridLayout labellayout = new GridLayout();
         labellayout.numColumns = 4;
@@ -652,9 +738,13 @@ class XWindow {
         this.setHashedfilesLabel(0);*/
         
         if(this.config.configByArgs(this.args)){
-		    this.o.println(this.config.getHelp());
-			this.o.println();
-		    this.o.error(this.config.getConfigErrorMsg());
+			String errorMsg = this.config.getConfigErrorMsg();
+			if (errorMsg.isEmpty()) {
+				this.o.println(this.config.getHelp());
+				this.o.println();
+			} else {
+				this.o.error(this.config.getConfigErrorMsg());
+			}
 		}
 		
 		// adjust hash-selection and title
