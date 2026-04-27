@@ -70,6 +70,7 @@ final class XClearTable extends SelectionAdapter{
         	this.config.setUseSysIndepPathSeparator(true);
         	this.config.setUseRelPath(true,true);
         	this.config.setCheckMDFile("");
+        	this.config.setCheckMDFileEncoding(""); // Unknown Charset name
         	
         	this.xw.setUseRelPath(true);
         	this.xw.updateTitle();

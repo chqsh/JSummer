@@ -98,7 +98,6 @@ class Config extends CoreConfig{
 	}
 	
 	
-    
 	//@SuppressWarnings("unchecked")
 	//@Override
 	protected void addHashFile(String f,String parent){
@@ -126,8 +125,18 @@ class Config extends CoreConfig{
 		final boolean ret = cf.isAbsolute(); 
 		this.o.debug(this.toString()+"::addHashFileCheck() returning "+ret,this.classDebugLevel);
 		return ret;
-    }
-    
+	}
+	
+	protected boolean checkHashFileExist(String f, String parent){
+		String funcSig = this.toString()+"::checkHashFileExist() : ";
+		this.o.debug(funcSig+"file:"+f+"; parent:"+parent,this.classDebugLevel);
+		CoreHashFile cf = new CoreHashFile(f,this,parent);
+		boolean ret = (cf.errorCode == 1) ? false:true;
+		this.o.debug(funcSig+"returning "+ret,this.classDebugLevel);
+		cf = null;
+		return ret;
+	}
+	
 	protected boolean writeToSaveMD5File(String l){
 		if(this.saveMDFileWriter==null){
 			this.saveMDFileWriter = new SaveMDFile(this);
@@ -154,8 +163,6 @@ class Config extends CoreConfig{
 	    this.setSaveMDFile("");
 	    this.saveMDFileWriter = null;
 	}
-	
-	
 	
 	
 	/**
@@ -248,8 +255,10 @@ class Config extends CoreConfig{
         CheckMDFile cf = new CheckMDFile(this);
         if(cf.getErrorCode()>0){
             this.configErrorMsg = "CheckFile-Error :: "+cf.getErrorMsg();
-            this.o.debug("Config :: setCheckMDFile '"+checkMDFile
-            		+"' returning ERROR: "+cf.getErrorMsg(), this.classDebugLevel);
+            //this.o.debug("Config :: setCheckMDFile '"+checkMDFile
+            //		+"' returning ERROR: "+cf.getErrorMsg(), this.classDebugLevel);
+            this.o.debug(String.format("Config :: setCheckMDFile '%s' return ERROR %d: %s",
+				checkMDFile, cf.getErrorCode(), cf.getErrorMsg()), this.classDebugLevel);
             return false;
         }
         this.o.debug("Config :: setCheckMDFile '"+checkMDFile+"' returning OK", this.classDebugLevel);

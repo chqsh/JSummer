@@ -52,12 +52,13 @@ class CoreConfig {
     protected String configErrorMsg = "";
     protected int progExitCode = 0;
     
-    protected Vector hashFiles = new Vector();
+    protected Vector<CoreHashFile> hashFiles = new Vector<>();
     
     private String saveMDFile = "";
     protected File fileSaveMDFile = null;
     
     private String checkMDFile = "";
+    private String checkMDFileEncoding = "";
     
     private String relativePath = "";
     
@@ -70,7 +71,7 @@ class CoreConfig {
     protected final static int serverPortMax = 65535;
     protected final static String serverInitString = CoreConfig.VERSION+"-com.de.zerosys.JSummer.XLaunchXServer";
     
-    protected Vector containerHashSumInfo = new Vector();
+    protected Vector<HashSumInfo> containerHashSumInfo = new Vector<>();
     protected HashSumInfo actualHashSumInfo;
     
     protected final static String defaultHashAlg = "md5"; 
@@ -187,7 +188,7 @@ class CoreConfig {
                     i++;
                     this.setHashSum(args[i]);
                     break;
-                case 'e':
+                case 'E':
                     this.warnEmptyDirs = true;
                     break;
                 case 'u':
@@ -219,6 +220,22 @@ class CoreConfig {
                         break argsloop;
                     }
                     break;
+                case 'e':
+                    if ( i == args.length-1 ) {
+                        this.configErrorMsg = args[i] + " needs argument";
+                        this.configError = true;
+                        break argsloop;
+                    }
+                    i++;
+                    {
+                        String encoding = args[i];
+                        if (encoding.matches("^[-\\w.]+")) {
+                            if(!this.setCheckMDFileEncoding(encoding)){
+                                this.setCheckMDFileEncoding("");
+                            }
+                        }
+                    }
+                    break;
                 case 'c':
                     if ( i == args.length-1 ) {
                         this.configErrorMsg = args[i] + " needs argument";
@@ -231,9 +248,22 @@ class CoreConfig {
                         this.configError = true;
                         break;
                     }
-                    if(!this.setCheckMDFile(args[i])){
-                        this.configError = true;
-                        this.setCheckMDFile("");
+                    {
+                        String arg = args[i];
+                        int idx = arg.indexOf("::");
+                        if (idx > 0) {
+                            String encoding = arg.substring(idx+2);
+                            arg = arg.substring(0, idx);
+                            if (encoding.matches("^[-\\w.]+")) {
+                                if(!this.setCheckMDFileEncoding(encoding)){
+                                    this.setCheckMDFileEncoding("");
+                                }
+                            }
+                        }
+                        if(!this.setCheckMDFile(arg)){
+                            this.configError = true;
+                            this.setCheckMDFile("");
+                        }
                     }
                     break;
                 case 'd':
@@ -342,26 +372,38 @@ class CoreConfig {
 			h += "\n";
 		}
         
-        h += "  -c f \t\tcheck hashsums listed in checkfile f\n"
+        h += "  -e encoding \tset charset name to encoding that used by hashsums checkfile lists\n"
+            +"  \t\tThe charset name is usually next items:\n"
+            +"  \t\tUTF-8, UTF-16LE, UTF-16BE;\n"
+            +"  \t\tISO-8859-1 (The charset is one byte per char.) ;\n"
+            +"  \t\tGB18030, GBK, GB2312, BIG5, EUC-TW;\n"
+            +"  \t\tShift_JIS, EUC-JP; EUC-KR, KS_C_5601-1987, JOHAB;\n"
+            +"  \t\tand so on.\n"
+            +"  -c f \t\tcheck hashsums listed in checkfile f\n"
             +"  \t\tif the checkfile ends with .md5 .sha1 .sha160 .sha256,\n"
             +"  \t\tthe coresponding hash-alg will be used.\n"
+            +"  -c f::coding \tcheck hashsums listed in checkfile f (charset name is coding)\n"
             +"  -b \t\tthread as binary (only cosmetic effect at the moment)\n"
             +"  -g \t\tbe GNU-md5sum|sha1sum-compilant\n"
             +"  -f f \t\tsave checksum to file f\n"
             +"  -r \t\tdo not use relative path\n"
             +"  -u \t\tuppercase hash\n"
-            +"  -e \t\tprint a warning for empty dirs\n"
+            +"  -E \t\tprint a warning for empty dirs\n"
             +"  -s \t\tdont use systemindependent pathseparator\n"
             +"  -v \t\tbe more verbose\n"
             +"\t\t\tin GNU-comilant mode print filenames while checking\n"
             +"\t\t\tin normal mode print some additional infos\n"
             +"  -d n \t\tset debuglevel (0 < n < 125)\n"
-            +"calculate md5sum:\n"
-            +" "+CoreConfig.ProgName+" [-g] [-v] [-b] [-f tofile] file(s)|dir(s)\n"
-            +"  file(s)|dir(s): the files and/or directories to act on\n"
-            +"check md5sum:\n"
-            +" "+CoreConfig.ProgName+" [-g] [-v] -c file\n"
-            +"  -c file: check md5sums from file";
+            +"\nCalculate md5sum:\n"
+            +CoreConfig.ProgName+" [-g] [-v] [-b] [-f tofile] file(s)|dir(s)\n"
+            +"\tfile(s)|dir(s): the files and/or directories to act on\n"
+            +"\nCheck md5sum:\n"
+            +CoreConfig.ProgName+" [-g] [-v] -c file\n"
+            +"\t-c file: check md5sums from file\n"
+            +CoreConfig.ProgName+" [-g] [-v] -e GBK -c file\n"
+            +"\t-c file: check md5sums from file, that charset is GBK\n"
+            +CoreConfig.ProgName+" [-g] [-v] -c file::GBK\n"
+            +"\t-c file: check md5sums from file, that charset is GBK";
         
         return h;
     }
@@ -407,13 +449,22 @@ class CoreConfig {
     protected String getProgName() {
         return CoreConfig.ProgName;
     }
+    
     protected String getCheckMDFile() {
         return this.checkMDFile;
     }
-    
     protected boolean setCheckMDFile(String checkMDFile) {
     	this.o.debug("CoreConfig :: setCheckMDFile '"+checkMDFile+"'", this.classDebugLevel);
         this.checkMDFile = checkMDFile;
+        return true;
+    }
+    
+    protected String getCheckMDFileEncoding() {
+        return this.checkMDFileEncoding;
+    }
+    protected boolean setCheckMDFileEncoding(String checkMDFileEncoding) {
+    	this.o.debug("CoreConfig :: setCheckMDFileEncoding '"+checkMDFileEncoding+"'", this.classDebugLevel);
+        this.checkMDFileEncoding = checkMDFileEncoding;
         return true;
     }
     
