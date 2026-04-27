@@ -105,6 +105,17 @@ class CoreConfig {
         this.containerHashSumInfo.add(new HashSumInfo(Registry.HAVAL_HASH));
     }
     
+    protected String getAllSupportedTypesExt(String prepend, String delimiter){
+        String allSupportedTypesExt = "";
+        for (HashSumInfo hsi : this.containerHashSumInfo) {
+            String fext = hsi.getAllHashFileExtensions(prepend, delimiter);
+            if(allSupportedTypesExt.length() > 0) allSupportedTypesExt += delimiter;
+            allSupportedTypesExt += fext;
+        }
+        return allSupportedTypesExt;
+    }
+    
+    
     protected void debugSpecs(){
         if(this.o.getDebugLevel()==0){
             return;
@@ -306,7 +317,8 @@ class CoreConfig {
         this.o.debug("this.checkMDFile.equals(\"\")::"+this.checkMDFile.equals(""),this.classDebugLevel);
     
         if(this.isConsoleVersion() && this.hashFiles.size()==0 && this.checkMDFile.equals("")){
-            this.configErrorMsg = "NO FILES!";
+            if (this.configErrorMsg.isEmpty() && args.length > 0)
+                this.configErrorMsg = "NO FILES!";
             this.configError = true;
         }
         

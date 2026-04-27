@@ -28,9 +28,13 @@ class ConsoleRun {
 			ConsoleFileGutter cf = new ConsoleFileGutter(this.config);
 			cf.doit();
 		}else{
-			this.o.println(this.config.getHelp());
-			this.o.println();
-			this.o.fatalError(this.config.getConfigErrorMsg());
+			String errorMsg = this.config.getConfigErrorMsg();
+			if (errorMsg.isEmpty()) {
+				this.o.println(this.config.getHelp());
+				this.o.println();
+			} else {
+				this.o.fatalError(errorMsg);
+			}
 		}
 		System.exit(this.config.getProgExitCode());
 	}
