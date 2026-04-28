@@ -80,13 +80,8 @@ public final class Whirlpool extends BaseHash {
 
    /** The digest of the 0-bit long message. */
    private static final String DIGEST0 =
-      /* Whirlpool-T
          "470F0409ABAA446E49667D4EBE12A14387CEDBD10DD17B8243CAD550A089DC0F"+
          "EEA7AA40F6C2AAAB71C6EBD076E43C7CFCA0AD32567897DCB5969861049A0F5A";
-       */
-      /* Whirlpool */ 
-         "19FA61D75522A4669B44E39C1D2E1726C530232130D407F89AFEE0964997F7A7"+
-         "3E83BE698B288FEBCF88E3E03C4F0757EA8964E59B63D93708B138CC42A66EB3";
 
    private static final int R = 10; // default number of rounds
 
@@ -153,7 +148,7 @@ public final class Whirlpool extends BaseHash {
          if (s2 > 0xFFL) {
             s2 ^= ROOT;
          }
-         // s3 = s2 ^ s; // Whirlpool-T
+         s3 = s2 ^ s;
          s4 = s2 << 1;
          if (s4 > 0xFFL) {
             s4 ^= ROOT;
@@ -166,12 +161,8 @@ public final class Whirlpool extends BaseHash {
          s9 = s8 ^ s;
 
          S[i] = (byte) s;
-         /*
          T0[i] = t = s  << 56 | s  << 48 | s3 << 40 | s  << 32 |
-                     s5 << 24 | s8 << 16 | s9 <<  8 | s5; // Whirlpool-T
-          */
-         T0[i] = t = s  << 56 | s  << 48 | s4 << 40 | s  << 32 |
-                     s8 << 24 | s5 << 16 | s2 <<  8 | s9; // Whirlpool
+                     s5 << 24 | s8 << 16 | s9 <<  8 | s5;
          T1[i] = t >>>  8 | t << 56;
          T2[i] = t >>> 16 | t << 48;
          T3[i] = t >>> 24 | t << 40;
