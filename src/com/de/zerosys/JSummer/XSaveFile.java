@@ -67,7 +67,7 @@ final class XSaveFile extends SelectionAdapter{
 	                }
 	                savefile.delete();
 	            }
-	            Enumeration fe = this.config.getMD5Files().elements();
+	            Enumeration<?> fe = this.config.getMD5Files().elements();
 	            this.config.setSaveMDFile(savefile.getAbsolutePath());
 	            while(fe.hasMoreElements()){
 	                HashFile f = (HashFile)fe.nextElement();

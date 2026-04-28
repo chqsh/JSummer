@@ -53,11 +53,11 @@ class XLauncherServConn extends XLauncherSockRW{
 		return this.connStatus;
 	}
 	
-	protected boolean sendFiles(Vector v){
-	    Enumeration e = v.elements();
+	protected boolean sendFiles(Vector<CoreHashFile> v){
+	    Enumeration<CoreHashFile> e = v.elements();
 	    while(e.hasMoreElements()){
 	        //HashFile hf = (HashFile)e.nextElement();
-            CoreHashFile hf = (CoreHashFile)e.nextElement();
+            CoreHashFile hf = e.nextElement();
 	    	String f = hf.getAbsName();
 	        this.o.debug("sending filestring "+f,this.classDebugLevel);
 	    	if(!this.sendFile(f)){
