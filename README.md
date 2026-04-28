@@ -5,4 +5,10 @@ Original website: https://sourceforge.net/projects/jsummer/
 
 The md5 file is ANSI / GBK / UTF-8 codepage. JSummer do support common charset. And you can set it at Configuration Menu.
 
-[!Screenshot](./screenshot/01.png)
+### Screenshot
+
+![Screenshot-01](./screenshot/01.png)
+
+![Screenshot-02](./screenshot/02.png)
+
+![Screenshot-03](./screenshot/03.png)
