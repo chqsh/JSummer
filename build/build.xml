@@ -62,8 +62,8 @@
 	<!-- ====================================================
 	java target / optimisation version
 	====================================================  -->
-	<property name="package.java.targetversion" value="1.4"/>
-	<property name="package.java.sourceversion" value="1.4"/>
+	<property name="package.java.targetversion" value="1.8"/>
+	<property name="package.java.sourceversion" value="1.8"/>
 	<property name="package.java.optimize" value=""/>
 	
 	
@@ -195,18 +195,18 @@
 	==================================================== -->
 	<condition 
 		property="package.swt.location"
-		value="../swt/current/gtk">
+		value="./swt/current/gtk">
 		<os name="Linux"/>
 	</condition>
 	<condition 
 		property="package.swt.location"
-		value="../swt/current/win32">
+		value="./swt/current/win32">
 		<os family="Windows"/>
 	</condition>
 	<!-- TODO: carbon -->
 	<condition 
 		property="package.swt.location"
-		value="../swt/current/motif">
+		value="./swt/current/motif">
 		<not>
 			<isset property="package.swt.location"/>
 		</not>
