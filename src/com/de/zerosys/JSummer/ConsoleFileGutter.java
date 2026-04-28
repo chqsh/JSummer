@@ -97,7 +97,9 @@ final class ConsoleFileGutter {
 			if(!this.config.isGnuCompat()){
 				this.config.delscreen(oldpercent+"%");
 				if(this.config.beVerbose()){
-					this.o.print(": read "+f.getFileSize()+" bytes in "+f.getProcTime()+" ms");
+					//this.o.print(": read "+f.getFileSize()+" bytes in "+f.getProcTime()+" ms");
+					this.o.print(String.format(": read %d bytes in %d ms (%s)",
+						f.getFileSize(), f.getProcTime(), f.getProcSpeed()));
 					if(this.config.getCheckFile().equals("")){
 						this.o.println();
 					}else{
@@ -145,7 +147,17 @@ final class ConsoleFileGutter {
 		}
 		
 		if(!this.config.isGnuCompat()&&this.config.beVerbose()){
-			this.o.println("hashed "+fv.size()+" files with total "+totalSize+" bytes in "+(System.currentTimeMillis()-startTime)+" ms");
+			long procTime = System.currentTimeMillis()-startTime;
+			double procTime_Sec = procTime / 1000.0;
+			if (totalSize < 1048576L)
+				this.o.println(String.format("hashed %d files with total %d bytes in %d ms",
+					fv.size(), totalSize, procTime));
+			else
+				this.o.println(String.format("hashed %d files with total %d bytes (%s) in %d ms (%sB/s)\n",
+					fv.size(), totalSize,
+					CoreHashFile.getHumanReadableFileSize(totalSize),
+					procTime,
+					CoreHashFile.getHumanReadableNumber(totalSize / procTime_Sec)));
 		}
 		if(errornum>0){
 			this.o.println(this.config.getHashSumName()+": WARNING: "+errornum+" of "+totalnum+" computed checksums did NOT match");
