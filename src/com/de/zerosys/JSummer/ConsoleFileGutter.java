@@ -137,7 +137,7 @@ final class ConsoleFileGutter {
 					errornum++;
 				}
 				if(!this.config.isGnuCompat()){
-					this.o.println(f.getCheckResult()+"   ");
+					this.o.println(f.getCheckResult()+"    ");
 				}else{
 				    if(this.config.beVerbose() || f.getCheckResult().equals("ERROR")){
 						this.o.println(f.getName()+" "+f.getCheckResult());
