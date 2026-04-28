@@ -13,6 +13,7 @@
 package com.de.zerosys.JSummer;
 
 import java.util.Enumeration;
+import java.util.NoSuchElementException;
 
 
 class XFileGutterNameThread implements Runnable {
@@ -40,14 +41,18 @@ class XFileGutterNameThread implements Runnable {
 				this.o.debug(this.toString()+" going away ...",this.classDebugLevel);
 				return;
 			}
-			Enumeration fe = this.config.getMD5Files().elements();
-			while(fe.hasMoreElements()){
-				if(this.xfg.isStopMe()||this.xfg.getXdisplay().isDisposed()){
-					this.o.debug(this.toString()+" fileloop : going away ...",this.classDebugLevel);
-					return;
+			try {
+				Enumeration fe = this.config.getMD5Files().elements();
+				while(fe.hasMoreElements()){
+					if(this.xfg.isStopMe()||this.xfg.getXdisplay().isDisposed()){
+						this.o.debug(this.toString()+" fileloop : going away ...",this.classDebugLevel);
+						return;
+					}
+					XHashFile f = (XHashFile)fe.nextElement();
+					this.xfg.updateFileName(f.getTableItem(),f);
 				}
-				XHashFile f = (XHashFile)fe.nextElement();
-				this.xfg.updateFileName(f.getTableItem(),f);
+			} catch (NoSuchElementException ex) {
+				// Ignore the exception. Break off the while loop.
 			}
 			this.xw.setUpdateName(false);
 		}

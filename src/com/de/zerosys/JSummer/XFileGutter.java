@@ -18,6 +18,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ProgressBar;
+
 
 class XFileGutter implements Runnable {
     
@@ -32,7 +35,7 @@ class XFileGutter implements Runnable {
     //private boolean updateName = false;
     private boolean updateHash = false;
     
-    protected static int updateDisplay = 1000;
+    protected static int updateDisplay = 500;
 	
     private boolean stopMe = false;
     private boolean stopHash = true;
@@ -81,16 +84,33 @@ class XFileGutter implements Runnable {
         });
 	}
     
-	protected void setText(final TableItem tr,final String txt){
-		this.setText(tr,txt,1);
+    protected void setProgress(final TableItem tr, final Control ctrl, float donePercent){
+		if (donePercent < 0)
+			return;
+		int percent = Math.round(donePercent);
+		percent = (percent > 100) ? 100:percent;
+		setText(tr, donePercent+"%", 2, ctrl, percent);
     }
-	protected void setText(final TableItem tr,final String txt,final int col){
+    
+	protected void setResult(final TableItem tr,String txt){
+		if (txt.matches("^[0-9A-Fa-f]+$"))
+			txt = "OK"; // Defer actal work to following setText( HashValue ).
+		this.setText(tr,txt,1,null,0);
+    }
+	protected void setText(final TableItem tr,final String txt){
+		this.setText(tr,txt,2,null,0);
+    }
+	protected void setText(final TableItem tr,final String txt,final int col,
+		final Control ctrl, int value){
         //this.o.debug("setText():"+col+": "+txt+" (old txt:"+tr.getText(col)+")",this.classDebugLevel);
 		this.o.debug("setText():"+col+": "+txt,this.classDebugLevel);
         this.xdisplay.asyncExec(new Runnable(){
             public void run(){
                 if(!tr.isDisposed()){
                     tr.setText(col,txt);
+                    if (ctrl != null) {
+						((ProgressBar)ctrl).setSelection(value);
+					}
                 }
             }
         });
@@ -102,6 +122,7 @@ class XFileGutter implements Runnable {
                 if(!tr.isDisposed()){
 	                tr.setBackground(XFileGutter.this.config.getColorTableBGError());
 	                tr.setForeground(XFileGutter.this.config.getColorTableFGError());
+	                tr.setImage(XFileGutter.this.config.imgERR);
                 }
             }
         });
@@ -115,6 +136,7 @@ class XFileGutter implements Runnable {
 	                if(!tr.isDisposed()){
 	                    XFileGutter.this.o.debug("markTableRowDone()"+tr.getText(),7);
 	                    tr.setForeground(XFileGutter.this.config.getColorTableFGDone());
+	                    tr.setImage(XFileGutter.this.config.imgOK);
 	                }
 	            }
 	        });
@@ -128,6 +150,7 @@ class XFileGutter implements Runnable {
 	                if(!tr.isDisposed()){
 	                    tr.setForeground(XFileGutter.this.config.getColorTableFGNew());
 	                    tr.setBackground(XFileGutter.this.config.getColorTableBG());
+	                    tr.setImage(XFileGutter.this.config.imgUNKNOWN);
 	                }
 	            }
 	        });

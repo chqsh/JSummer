@@ -17,11 +17,13 @@
 package com.de.zerosys.JSummer;
 
 import org.eclipse.swt.widgets.TableItem;
-
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.widgets.Control;
 
 class XHashFile extends HashFile {
 
 	private TableItem tableItem = null;
+	private TableEditor tableEditor = null;
 	
 	XHashFile(String f, Config c) {
 		super(f, c);
@@ -36,5 +38,36 @@ class XHashFile extends HashFile {
     }
     protected void setTableItem(TableItem tableItem) {
         this.tableItem = tableItem;
+    }
+    protected void setTableItem(TableItem tableItem, TableEditor tableEditor) {
+        this.tableItem   = tableItem;
+        this.tableEditor = tableEditor;
+    }
+    
+    protected Control getEditor() {
+		if (this.tableEditor != null)
+			return this.tableEditor.getEditor();
+		else
+			return null;
+    }
+    protected int getColumn() {
+		if (this.tableEditor != null)
+			return this.tableEditor.getColumn();
+		else
+			return -1;
+    }
+    protected TableEditor getTableEditor() {
+		return this.tableEditor;
+    }
+    
+    protected void disposeAccessory() {
+		if (this.tableEditor != null) {
+			Control ctrl = this.tableEditor.getEditor();
+			if (ctrl != null) {
+				ctrl.dispose();
+			}
+			this.tableEditor.dispose();
+			this.tableEditor = null;
+		}
     }
 }

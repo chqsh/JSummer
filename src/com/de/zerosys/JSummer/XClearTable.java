@@ -77,6 +77,7 @@ final class XClearTable extends SelectionAdapter{
         	
         	this.xw.setNumfilesLabel(0);
         	this.xw.setHashedfilesLabel(0);
+        	this.xw.setErrorfilesLabel(0);
         }
         this.clearTableDoit = true;
         this.config.clearTable();

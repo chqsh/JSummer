@@ -335,7 +335,7 @@ class HashFile extends CoreHashFile implements Runnable{
 		if(this.calcStatus<2){
 			this.o.error("call for hash befor terminating!");
 		}
-		this.debug("getHashResult() is chechhash ?? :"+this.getCheckhash());
+		this.debug("getHashResult() is checkhash ?? :"+this.getCheckhash());
 		if(this.getCheckhash().equals("")){
 			if(this.getErrorCode()>0){
 				ret = "ERROR: "+this.getErrorMsg()+" :: ERRORCODE:"+this.getErrorCode();
@@ -370,6 +370,15 @@ class HashFile extends CoreHashFile implements Runnable{
 
 	protected long getProcTime() {
 		return this.procTime;
+	}
+
+	protected String getProcSpeed() {
+		long fileSize0 = this.fileSize;
+		long procTime0 = this.procTime;
+		if (fileSize0 <= 0 || procTime0 <= 0)
+			return "";
+		double procTime_Sec = procTime0 / 1000.0;
+		return getHumanReadableNumber(fileSize0 / procTime_Sec) + "B/s";
 	}
 
 	protected long getCallerProcTime() {

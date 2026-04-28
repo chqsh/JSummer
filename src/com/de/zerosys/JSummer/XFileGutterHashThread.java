@@ -80,6 +80,14 @@ class XFileGutterHashThread implements Runnable {
 					this.debug(this.toString()+" file "+f.getFileName()+" unset reset-mark");
 				}
 				
+				if (f.getCalcStatus()!=0) {
+                    if ( (f.isCheck() && ! f.istCheckresultOK()) 
+					  || (f.getErrorCode()>0)) {
+                        errorcount++;
+						this.xw.setErrorfilesLabel(errorcount);
+					}
+				}
+				
 				if(f.getCalcStatus()==0){
 				    this.debug(this.toString()+" - start thread "+f.getAbsName());
 				    this.xw.setEnableSaveFile(false);
@@ -113,7 +121,8 @@ class XFileGutterHashThread implements Runnable {
 						if(sleep > edtime){
 							sleep = edtime;
 						}else{
-							this.xfg.setText(f.getTableItem(),f.getDonePercent()+"%");
+							//this.xfg.setText(f.getTableItem(),f.getDonePercent()+"%");
+							this.xfg.setProgress(f.getTableItem(),f.getEditor(),f.getDonePercent());
 						}
 						try{
 							Thread.sleep(sleep);
@@ -122,11 +131,14 @@ class XFileGutterHashThread implements Runnable {
 						}
 					}
 					this.debug(this.toString()+" finished "+f.getAbsName());
-					this.xfg.setText(f.getTableItem(),f.getHashResult());
+					this.xfg.setProgress(f.getTableItem(),f.getEditor(),f.getDonePercent());
+					this.xfg.setResult(f.getTableItem(),f.getHashResult());
+					this.xfg.setText(f.getTableItem(),
+						(f.getErrorCode()>0) ? "" : f.getHash());
                     if(f.isCheck() && ! f.istCheckresultOK()){
-						this.xfg.markError(f.getTableItem());
                         errorcount++;
                         this.xw.setErrorfilesLabel(errorcount);
+						this.xfg.markError(f.getTableItem());
 					}else{
                         if(f.getErrorCode()>0){
                         	// maybe errormsg?
@@ -141,6 +153,11 @@ class XFileGutterHashThread implements Runnable {
                         }
 					}
 					this.setHashIsRunning(false);
+					this.xfg.xdisplay.asyncExec(new Runnable(){
+						public void run(){
+							f.disposeAccessory();
+						}
+					});
 				}
 				if(this.decideStopThread()){
 					this.debug(this.toString()+" going away ...");

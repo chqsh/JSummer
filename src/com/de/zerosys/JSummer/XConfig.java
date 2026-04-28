@@ -22,6 +22,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Image;
+
+import java.io.InputStream;
+
 /**
  * @author zerwes
  */
@@ -36,7 +44,8 @@ class XConfig extends Config{
 	XWindow xw = null;
     
     protected static int windowH = 450;
-	protected static int windowW = 700;
+	protected static int windowW = 750;
+	protected static int columnWidthProgress= 100;
 	protected static int columnWidthHashMin = 260; 
 	protected static int columnWidthHashMax = 460;
 	protected static int columnWidthHashDiff = columnWidthHashMax - columnWidthHashMin;
@@ -49,6 +58,10 @@ class XConfig extends Config{
 	
 	protected static String iconPath="JSummer.ico";
 	private int iconStyle = 1;
+	
+	protected static Image imgUNKNOWN = null;
+	protected static Image imgOK  = null;
+	protected static Image imgERR = null;
 	
 	protected static boolean useColors = true;
 	
@@ -70,6 +83,35 @@ class XConfig extends Config{
 		this.xdisplay = this.xshell.getDisplay();
         this.setFont();
         this.o.debug(this.toString()+"::XConfig : isWindows ? "+this.isWindows(),this.classDebugLevel);
+	}
+	
+	protected static void setImageResource(int index, Image res) {
+		switch (index) {
+		case 0:
+			if (imgUNKNOWN != null)
+				imgUNKNOWN.dispose();
+			imgUNKNOWN = res;
+			break;
+		case 1:
+			if (imgOK != null)
+				imgOK.dispose();
+			imgOK = res;
+			break;
+		case 2:
+			if (imgERR != null)
+				imgERR.dispose();
+			imgERR = res;
+			break;
+		}
+	}
+	protected static Image getImageResource(int index) {
+		switch (index) {
+		case 1:
+			return imgOK;
+		case 2:
+			return imgERR;
+		}
+		return imgUNKNOWN;
 	}
 	
 	//@Override
@@ -160,10 +202,28 @@ class XConfig extends Config{
             public void run(){
 				//o.debug(this.toString()+"::XaddHashFile() run() for file "+f,classDebugLevel);
             	final TableItem tr = new TableItem(XConfig.this.table,SWT.NONE);
-            	hf.setTableItem(tr);
+            	final TableEditor ed = new TableEditor(XConfig.this.table);
+            	final ProgressBar progressBar = new ProgressBar(table, SWT.HORIZONTAL);
+            	int col = 1;
+            	progressBar.setMinimum(0);
+            	progressBar.setMaximum(100);
+            	progressBar.setSelection(0);
+            	Rectangle cellSize = tr.getBounds(col);
+            	progressBar.setSize(new Point(cellSize.width, cellSize.height));
+            	ed.minimumWidth = cellSize.width;
+            	ed.horizontalAlignment = SWT.LEFT;
+            	ed.setEditor(progressBar, tr, col);
+            	hf.setTableItem(tr, ed);
             	tr.setText(0,hf.getName());
             	tr.setForeground(XConfig.this.getColorTableFGNew());
                 tr.setBackground(XConfig.this.getColorTableBG());
+				tr.addDisposeListener(new org.eclipse.swt.events.DisposeListener() {
+					public void widgetDisposed(org.eclipse.swt.events.DisposeEvent e) {
+						ed.dispose();
+						progressBar.dispose();
+					}
+				});
+
             	//o.debug(this.toString()+"::XaddHashFile() run() END for file "+f,classDebugLevel);
             }
         });
@@ -217,7 +277,10 @@ class XConfig extends Config{
                 ||_icon.equals("Cancel")
                 ||_icon.equals("Clear")
                 ||_icon.equals("About")
-                ||_icon.equals("MD5Sum")){
+                ||_icon.equals("MD5Sum")
+                ||_icon.equals("Check")
+                ||_icon.equals("Cross")
+                ||_icon.equals("Unknown")){
             
 			return this.iconStyle+"/"+_icon+".png";
         }

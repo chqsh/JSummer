@@ -179,6 +179,15 @@ class XHashFileInfo extends Dialog {
 		sizetext.setDoubleClickEnabled(true);
 		sizetext.setLayoutData(this.getGridData());
 		
+		final Label hashspeedlabel = new Label(shell,SWT.LEFT);
+		hashspeedlabel.setText("speed:");
+		hashspeedlabel.setBackground(shell.getBackground());
+		final Text hashspeed = new Text(shell,SWT.LEFT|SWT.READ_ONLY|SWT.SINGLE);
+		hashspeed.setText(this.hf.getProcSpeed());
+		hashspeed.setBackground(shell.getBackground());
+		hashspeed.setDoubleClickEnabled(true);
+		hashspeed.setLayoutData(this.getGridData());
+		
 		final Label sepe = new Label(shell,SWT.SEPARATOR|SWT.HORIZONTAL);
         final GridData sepeGD = new GridData(GridData.FILL_HORIZONTAL);
 		sepeGD.horizontalSpan = 3;

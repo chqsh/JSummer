@@ -136,6 +136,20 @@ class XWindow {
         });
 	}
 	
+	private Image loadIcon(String _icon) {
+		String iconName = this.config.getIcon(_icon);
+		if (iconName == null || iconName.isEmpty())
+			return null;
+		
+		InputStream iconsstream = XWindow.class.getResourceAsStream(iconName);
+		if (iconsstream != null) {
+			return new Image(this.xdisplay,iconsstream);
+		} else {
+			this.o.error("unable to load icon "+iconName);
+            return null;
+		}
+	}
+	
 	protected void _startx(){
 		//this.o.debug(this.toString()+"::_startx()",1);
 		this.xshell.setSize(XConfig.windowW,XConfig.windowH);
@@ -164,6 +178,10 @@ class XWindow {
                 }
             });
 		}
+		
+		XConfig.setImageResource(0, loadIcon("Unknown"));
+		XConfig.setImageResource(1, loadIcon("Check"));
+		XConfig.setImageResource(2, loadIcon("Cross"));
 		
 		//MENUE && Toolbar TODO: organize this bunch of uggly code !!!!!!!!1
 		final Menu menu = new Menu(this.xshell, SWT.BAR);
@@ -523,9 +541,12 @@ class XWindow {
 		tableGD.horizontalAlignment = GridData.FILL;
 		comp.setLayoutData(tableGD);
 		
-		final TableColumn column0 = new TableColumn(this.table, SWT.NONE);
+        final TableColumn column0 = new TableColumn(this.table, SWT.NONE);
         column0.setText("File");
-        column0.setWidth(XConfig.windowW-XConfig.columnWidthHashMin);
+        column0.setWidth(XConfig.windowW-XConfig.columnWidthHashMin-XConfig.columnWidthProgress);
+        final TableColumn column2 = new TableColumn(this.table, SWT.NONE);
+        column2.setText("Progress");
+        column2.setWidth(XConfig.columnWidthProgress);
         final TableColumn column1 = new TableColumn(this.table, SWT.NONE);
         column1.setText("Hash");
         column1.setWidth(XConfig.columnWidthHashMax);
@@ -551,7 +572,7 @@ class XWindow {
         				//XWindow.this.o.debug("bigger diff smaller "+XConfig.columnWidthHashDiff,0);
     					c0width = width-(XConfig.columnWidthHashMin+(area.width-XConfig.windowW));
     				}else{
-    					c0width = width-XConfig.columnWidthHashMax;
+    					c0width = width-XConfig.columnWidthHashMax-XConfig.columnWidthProgress;
     				}
     			}
     			if (c0width<50){

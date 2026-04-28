@@ -107,4 +107,77 @@ class CoreHashFile {
         }
         this.o.debug(this.toString()+": file "+this.fileName+" :: "+_m,_l);
     }
+    
+	public static final long KILO = 1024L;
+	public static final long MEGA = 1048576L;
+	public static final long GIGA = 1073741824L;
+	
+	public static final double KILO_D = 1024.0D;
+	public static final double MEGA_D = 1048576.0D;
+	public static final double GIGA_D = 1.073741824E9D;
+	
+	public String getHumanReadableFileSize() {
+		return getHumanReadableFileSize(this.fileSize);
+	}
+	
+	public static String getHumanReadableFileSize(long fileSize) {
+		String sizeText = "";
+		if (fileSize < 0) {
+			;
+		} else if (fileSize < KILO) {
+		  sizeText = String.format("%d", new Object[] { Long.valueOf(fileSize) });
+		} else if (fileSize < MEGA) {
+		  sizeText = String.format("%s KB", new Object[] {
+				numberToString(fileSize / KILO_D, 0, 2) });
+		} else if (fileSize < GIGA) {
+		  sizeText = String.format("%s MB", new Object[] {
+				numberToString(fileSize / MEGA_D, 0, 2) });
+		} else {
+		  sizeText = String.format("%s GB", new Object[] {
+				numberToString(fileSize / GIGA_D, 0, 2) });
+		}
+		return sizeText;
+	}
+	
+	public static String getHumanReadableNumber(double number) {
+		String sizeText = "";
+		if (number < 0.0) {
+			return "-" + getHumanReadableNumber(-number);
+		} else if (number < KILO_D) {
+		  sizeText = String.format("%d ", new Object[] {
+				numberToString(number, 0, 2)});
+		} else if (number < MEGA_D) {
+		  sizeText = String.format("%s K", new Object[] {
+				numberToString(number / KILO_D, 0, 2) });
+		} else if (number < GIGA_D) {
+		  sizeText = String.format("%s M", new Object[] {
+				numberToString(number / MEGA_D, 0, 2) });
+		} else {
+		  sizeText = String.format("%s G", new Object[] {
+				numberToString(number / GIGA_D, 0, 2) });
+		}
+		return sizeText;
+	}
+	
+	private static String numberToString(int number, int digit) {
+		StringBuilder s = new StringBuilder(String.valueOf(number));
+		while (s.length() < digit) {
+			s.insert(0, "0");
+		}
+		return s.toString();
+	}
+	
+	private static String numberToString(double number, int digit, int scale) {
+		int intNumber = (int)number;
+		double part = number - intNumber;
+		StringBuilder s = new StringBuilder(numberToString(intNumber, digit));
+		s.append('.');
+		
+		for (int i = 1; i <= scale; i++) {
+		  part *= 10.0D;
+		}
+		intNumber = (int)Math.round(part);
+		s.append(numberToString(intNumber, scale));
+		return s.toString();
+	}
 }
