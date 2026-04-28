@@ -69,9 +69,9 @@ class XWindow {
 	private boolean statusSaveFile = false;
 	
 	// hash-alg => object 
-	protected HashMap Hash2MenuMenuItem = new HashMap();
-	protected HashMap Hash2ToolMenuItem = new HashMap();
-	protected HashMap Hash2XChangeHashAlg = new HashMap();
+	protected HashMap<String, MenuItem> Hash2MenuMenuItem = new HashMap<>();
+	protected HashMap<String, MenuItem> Hash2ToolMenuItem = new HashMap<>();
+	protected HashMap<String, XChangeHashAlg> Hash2XChangeHashAlg = new HashMap<>();
 	
 	
     Label numfileslabel;
@@ -647,7 +647,13 @@ class XWindow {
                             o.debug(this.toString()+" cleartable::aborted",XWindow.this.classDebugLevel);
                             return;
                         }
-                        config.setCheckMDFile(file, true);
+                        if (config.setCheckMDFile(file, true)) {
+							// Synchronously modify menu and toolbar options
+							String alg = config.getHashSumName();
+							XChangeHashAlg xchgalgHandler = Hash2XChangeHashAlg.get(alg);
+							if (xchgalgHandler != null)
+								xchgalgHandler.actOnSelection();
+                        }
                         return;
                     } else {
                         config.addFileDir(file);
