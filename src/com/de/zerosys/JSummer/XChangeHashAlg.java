@@ -81,7 +81,7 @@ class XChangeHashAlg extends SelectionAdapter{
 					XHashFile f = (XHashFile)fe.nextElement();
 					f.reset();
 					this.xw.getXfg().setText(f.getTableItem(),"");
-					this.xw.getXfg().marcTableRowInitial(f.getTableItem());
+					this.xw.getXfg().marcTableRowInitial(f.getTableItem(), f.getEditor());
 					this.o.debug(this.toString()+" reset done for "+f.getAbsName(),this.classDebugLevel);
 				}
 				this.xw.getTable().update();

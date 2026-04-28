@@ -41,29 +41,35 @@ final class XAddCheckFile extends SelectionAdapter{
 	public void widgetSelected(SelectionEvent e){
         this.o.debug(this.toString()+"::widgetSelected() : "+e.toString(),this.classDebugLevel);
         final FileDialog fd = new FileDialog(this.xshell,SWT.OPEN|SWT.SINGLE);
-        fd.setText("select hash-file to open ...");
-        String[] fext = new String[this.config.containerHashSumInfo.size()+3];
+        fd.setText("Select hash-file to open ...");
+        String[] fext = new String[this.config.containerHashSumInfo.size()+2];
         String[] fextText = new String[fext.length];
+        
         fext[0] = "*."+this.config.getSaveHashFileExtension();
-        fextText[0] = "Current selected hash algorithm: "+this.config.getHashSumName();
+        fextText[0] = "["+this.config.getHashSumName()+"]"; // Current selected hash algorithm
+        
         Enumeration hie = this.config.containerHashSumInfo.elements();
 		HashSumInfo hsi = null;
 		int i = 1;
 		String allSupportedTypesExt = "";
 		while(hie.hasMoreElements()) {
 			hsi = (HashSumInfo)hie.nextElement();
-			fext[i] = hsi.getAllHashFileExtensions("*.", ";");
+			String ext = hsi.getAllHashFileExtensions("*.", ";");
 			if(allSupportedTypesExt.length() > 0) allSupportedTypesExt += ";";
-			allSupportedTypesExt += fext[i];
-			fextText[i] = hsi.getHashAlgName()+" ("+fext[i]+")";
-			if(hsi.getHashAlgName().equals(this.config.getHashSumName())) {
-				fext[0] = fext[i];
-				fextText[i] += " ("+fext[i]+")";
-			}
+			allSupportedTypesExt += ext;
+			String extText = hsi.getHashAlgName()+" ("+ext+")";
 			if(!this.config.isWindows()) {
-				fext[i] += ";"+fext[i].toUpperCase();
+				ext += ";" + ext.toUpperCase();
 			}
-			i++;
+			if(hsi.getHashAlgName().equals(this.config.getHashSumName())) {
+                // Current selected hash algorithm locate at [0]
+				fext    [0] = ext;
+				fextText[0] = extText;
+			} else {
+				fext    [i] = ext;
+				fextText[i] = extText;
+                i++;
+			}
 		}
 		fext[i] = allSupportedTypesExt;
 		fextText[i] = "all supported files types";
@@ -72,13 +78,11 @@ final class XAddCheckFile extends SelectionAdapter{
 		fextText[i] = "all files (*.*)";
 		fd.setFilterExtensions(fext);
 		fd.setFilterNames(fextText);
+		// setFilterIndex(selected) need SWT 3.4
+		
         String file = fd.open();
 		if(file!=null){
 			this.o.debug(this.toString()+" selected file: "+file,this.classDebugLevel);
-		    /*if(clearTable){
-				final XClearTable xclrtab = new XClearTable(this.xw);
-				xclrtab.widgetSelected(e);
-		    }*/
 			// now the msgbox is raised by XClearTable
 			final XClearTable xclrtab = new XClearTable(this.xw);
 			xclrtab.widgetSelected(e);

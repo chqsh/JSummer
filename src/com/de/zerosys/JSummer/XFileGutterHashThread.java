@@ -91,7 +91,7 @@ class XFileGutterHashThread implements Runnable {
 				if(f.getCalcStatus()==0){
 				    this.debug(this.toString()+" - start thread "+f.getAbsName());
 				    this.xw.setEnableSaveFile(false);
-				    this.xfg.marcTableRowInitial(tr);
+				    this.xfg.marcTableRowInitial(tr, f.getEditor());
 				    Thread ft = new Thread(f);
 				    this.setHashIsRunning(true);
 					ft.start();
@@ -132,7 +132,7 @@ class XFileGutterHashThread implements Runnable {
 					}
 					this.debug(this.toString()+" finished "+f.getAbsName());
 					this.xfg.setProgress(f.getTableItem(),f.getEditor(),f.getDonePercent());
-					this.xfg.setResult(f.getTableItem(),f.getHashResult());
+					this.xfg.setResult(f.getTableItem(),f.getHashResult(),f.getEditor());
 					this.xfg.setText(f.getTableItem(),
 						(f.getErrorCode()>0) ? "" : f.getHash());
                     if(f.isCheck() && ! f.istCheckresultOK()){
@@ -143,7 +143,7 @@ class XFileGutterHashThread implements Runnable {
                         if(f.getErrorCode()>0){
                         	// maybe errormsg?
                         	this.o.debug(this.toString()
-                        			+"errorcode:"+f.getErrorCode()
+                        			+" errorcode:"+f.getErrorCode()
                         			+"; errormsg:"+f.getErrorMsg());
                             errorcount++;
                             this.xw.setErrorfilesLabel(errorcount);
@@ -153,11 +153,16 @@ class XFileGutterHashThread implements Runnable {
                         }
 					}
 					this.setHashIsRunning(false);
+					/* [20260405] Can not recover progressBar once it is disposed.
+					 * But, only when the progressBar is disposed, the text of the table item can be displayed.
+					 * (Move to markTableRowDone() / setResult())
 					this.xfg.xdisplay.asyncExec(new Runnable(){
 						public void run(){
-							f.disposeAccessory();
+							//f.disposeAccessory();
+							f.setVisibleAccessory(false);
 						}
 					});
+					 */
 				}
 				if(this.decideStopThread()){
 					this.debug(this.toString()+" going away ...");

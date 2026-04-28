@@ -122,10 +122,11 @@ class HashFile extends CoreHashFile implements Runnable{
 		}
 	    this.setStopMe(false);
 		this.calcStatus = 1;
-		this.startTime = System.currentTimeMillis();
-		long thisTime = this.startTime;
 		HashSum hs = this.config.getHashSum();
 		if (hs == null) return false;
+		hs.reset(); // Clear State
+		this.startTime = System.currentTimeMillis();
+		long thisTime = this.startTime;
 		try{
 			FileInputStream fis = new FileInputStream(this.file);
 			BufferedInputStream bis = new BufferedInputStream(fis);

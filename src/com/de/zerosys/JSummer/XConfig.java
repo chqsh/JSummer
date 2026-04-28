@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.TableItem;
 
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Image;
 
@@ -45,7 +44,7 @@ class XConfig extends Config{
     
     protected static int windowH = 450;
 	protected static int windowW = 750;
-	protected static int columnWidthProgress= 100;
+	protected static int columnWidthProgress= 101;
 	protected static int columnWidthHashMin = 260; 
 	protected static int columnWidthHashMax = 460;
 	protected static int columnWidthHashDiff = columnWidthHashMax - columnWidthHashMin;
@@ -203,14 +202,15 @@ class XConfig extends Config{
 				//o.debug(this.toString()+"::XaddHashFile() run() for file "+f,classDebugLevel);
             	final TableItem tr = new TableItem(XConfig.this.table,SWT.NONE);
             	final TableEditor ed = new TableEditor(XConfig.this.table);
-            	final ProgressBar progressBar = new ProgressBar(table, SWT.HORIZONTAL);
+            	final ProgressBar progressBar = new ProgressBar(XConfig.this.table, SWT.SMOOTH);
             	int col = 1;
             	progressBar.setMinimum(0);
             	progressBar.setMaximum(100);
             	progressBar.setSelection(0);
             	Rectangle cellSize = tr.getBounds(col);
-            	progressBar.setSize(new Point(cellSize.width, cellSize.height));
+            	progressBar.setSize(cellSize.width, 10 /* cellSize.height */);
             	ed.minimumWidth = cellSize.width;
+            	ed.minimumHeight= progressBar.getSize().y;
             	ed.horizontalAlignment = SWT.LEFT;
             	ed.setEditor(progressBar, tr, col);
             	hf.setTableItem(tr, ed);

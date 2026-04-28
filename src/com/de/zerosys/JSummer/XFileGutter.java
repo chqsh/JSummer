@@ -43,6 +43,7 @@ class XFileGutter implements Runnable {
     private XWindow xwindow;
     
     private int classDebugLevel = 2;
+    private final static int defaultColumn = (org.eclipse.swt.SWT.getVersion() < 4000) ? 2:1;
     
     protected XFileGutter(XWindow xwin){
         this.xwindow = xwin;
@@ -89,13 +90,14 @@ class XFileGutter implements Runnable {
 			return;
 		int percent = Math.round(donePercent);
 		percent = (percent > 100) ? 100:percent;
-		setText(tr, donePercent+"%", 2, ctrl, percent);
+		int col = (ctrl == null) ? 1 : defaultColumn;
+		setText(tr, donePercent+"%", col, ctrl, percent);
     }
     
-	protected void setResult(final TableItem tr,String txt){
+	protected void setResult(final TableItem tr,String txt, final Control ctrl){
 		if (txt.matches("^[0-9A-Fa-f]+$"))
 			txt = "OK"; // Defer actal work to following setText( HashValue ).
-		this.setText(tr,txt,1,null,0);
+		this.setText(tr,txt,1,ctrl,-1);
     }
 	protected void setText(final TableItem tr,final String txt){
 		this.setText(tr,txt,2,null,0);
@@ -109,7 +111,13 @@ class XFileGutter implements Runnable {
                 if(!tr.isDisposed()){
                     tr.setText(col,txt);
                     if (ctrl != null) {
-						((ProgressBar)ctrl).setSelection(value);
+                        ProgressBar progressBar = (ProgressBar)ctrl;
+                        if (value < 0) {
+                            progressBar.setVisible(false);
+                            progressBar.setSelection(0);
+                        } else {
+                            progressBar.setSelection(value);
+                        }
 					}
                 }
             }
@@ -130,6 +138,7 @@ class XFileGutter implements Runnable {
 	
 	protected void markTableRowDone(final TableItem tr){
 		this.o.debug(this.toString()+"::markTableRowDone()",this.classDebugLevel);
+		/*
 		if(XConfig.useColors){
 			this.xdisplay.asyncExec(new Runnable(){
 	            public void run(){
@@ -141,9 +150,22 @@ class XFileGutter implements Runnable {
 	            }
 	        });
 		}
+		*/
+        this.xdisplay.asyncExec(new Runnable(){
+            public void run(){
+                if(!tr.isDisposed()){
+                    XFileGutter.this.o.debug("markTableRowDone()"+tr.getText(),7);
+                    if(XConfig.useColors){
+                        tr.setForeground(XFileGutter.this.config.getColorTableFGDone());
+                    }
+                    tr.setImage(XFileGutter.this.config.imgOK);
+                }
+            }
+        });
 	}
 	
-	protected void marcTableRowInitial(final TableItem tr){
+	protected void marcTableRowInitial(final TableItem tr, final Control ctrl){
+        /*
 		if(XConfig.useColors){
 			this.xdisplay.asyncExec(new Runnable(){
 	            public void run(){
@@ -155,6 +177,22 @@ class XFileGutter implements Runnable {
 	            }
 	        });
 		}
+		*/
+        this.xdisplay.asyncExec(new Runnable(){
+            public void run(){
+                if(!tr.isDisposed()){
+                    if(XConfig.useColors) {
+                        tr.setForeground(XFileGutter.this.config.getColorTableFGNew());
+                        tr.setBackground(XFileGutter.this.config.getColorTableBG());
+                    }
+                    tr.setImage(XFileGutter.this.config.imgUNKNOWN);
+                    tr.setText(1,"");
+                    tr.setText(2,"");
+                    if (ctrl != null)
+                        ctrl.setVisible(true);
+                }
+            }
+        });
 	}
 	
 	protected void markTableRowHashing(final TableItem tr){

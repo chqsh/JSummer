@@ -226,7 +226,7 @@ class XWindow {
         
 		//addFile
         final MenuItem newFile = new MenuItem(fileMenu, SWT.PUSH);
-        newFile.setText("add file(s)");
+        newFile.setText("Add file(s)");
         final XAddFile xaddfile = new XAddFile(this);
         newFile.addSelectionListener(xaddfile);
         final ToolItem maddfile = new ToolItem(toolBar,SWT.PUSH);
@@ -234,7 +234,7 @@ class XWindow {
 		iconsstream = XWindow.class.getResourceAsStream(iconname);
 		if(iconsstream==null){
 			this.o.error("unable to load icon "+iconname);
-			maddfile.setText("add file(s)");
+			maddfile.setText("Add file(s)");
 		}else{
 			final Image icon = new Image(this.xdisplay,iconsstream);
 			maddfile.setImage(icon);
@@ -244,11 +244,11 @@ class XWindow {
                 }
             });
 		}
-        maddfile.setToolTipText("add file(s) to hash ...");
+        maddfile.setToolTipText("Add file(s) to hash ...");
         maddfile.addSelectionListener(xaddfile);
         //addDir
         final MenuItem newDir = new MenuItem(fileMenu, SWT.PUSH);
-        newDir.setText("add directory");
+        newDir.setText("Add directory");
         final XAddDir xadddir = new XAddDir(this);
         newDir.addSelectionListener(xadddir);
         final ToolItem madddir = new ToolItem(toolBar,SWT.PUSH);
@@ -266,12 +266,12 @@ class XWindow {
 	            });
 	        }else{
 				this.o.error("unable to load resource:'"+is+"'");
-				madddir.setText("add dir");
+				madddir.setText("Add dir");
 	        }
         }catch(IOException e){
             this.o.error(e.getMessage());
         }
-        madddir.setToolTipText("add directory to hash recursive ...");
+        madddir.setToolTipText("Add directory to hash recursive ...");
         madddir.addSelectionListener(xadddir);
         
 		// sep0
@@ -280,9 +280,9 @@ class XWindow {
 		
 		// add checkfile
 		final MenuItem addCheckFile = new MenuItem(fileMenu, SWT.PUSH);
-		addCheckFile.setText("open check-file");
+		addCheckFile.setText("Open check-file");
 		final ToolItem maddCheckFile = new ToolItem(toolBar,SWT.PUSH);
-		maddCheckFile.setToolTipText("open check-file");
+		maddCheckFile.setToolTipText("Open check-file");
 		try{
             final String is = this.config.getIcon("MD5Sum");
             final URL iconURL = this.getClass().getResource( is );
@@ -297,7 +297,7 @@ class XWindow {
 				});
 	        }else{
 				this.o.error("unable to load resource:'"+is+"'");
-				maddCheckFile.setText("open check-file");
+				maddCheckFile.setText("Open check-file");
 	        }
         }catch(IOException e){
             this.o.error(e.getMessage());
@@ -312,7 +312,7 @@ class XWindow {
         
         //saveFile
         this.menuSaveFile = new MenuItem(fileMenu, SWT.PUSH);
-        this.menuSaveFile.setText("save Hash");
+        this.menuSaveFile.setText("Save hash");
         this.toolSaveFile = new ToolItem(toolBar,SWT.PUSH);
         try{
             final String is = this.config.getIcon("Floppy");
@@ -343,12 +343,12 @@ class XWindow {
 	            }
 	        }else{
 				this.o.error("unable to load resource:'"+is+"'");
-				this.toolSaveFile.setText("save hash");
+				this.toolSaveFile.setText("Save hash");
 	        }
         }catch(IOException e){
             this.o.error(e.getMessage());
         }
-        this.toolSaveFile.setToolTipText("save check-file ...");
+        this.toolSaveFile.setToolTipText("Save check-file ...");
         this.menuSaveFile.setEnabled(false);
         this.toolSaveFile.setEnabled(false);
         final XSaveFile xsavefile = new XSaveFile(this.config,this.xshell);
@@ -389,7 +389,7 @@ class XWindow {
         
 		// sep2.5
         new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
-        //new MenuItem(fileMenu,SWT.SEPARATOR);
+		new MenuItem(fileMenu,SWT.SEPARATOR);
 		
         // select hash-algorithm
         final ToolItem selectHash = new ToolItem(toolBar,SWT.DROP_DOWN);
@@ -454,9 +454,9 @@ class XWindow {
 		}
 		
 		// sep4
-        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
-        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
-        new MenuItem(fileMenu,SWT.SEPARATOR);
+        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(20);
+        //new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
+        //new MenuItem(fileMenu,SWT.SEPARATOR);
 		
         // About
         final MenuItem aboutmenu = new MenuItem(helpMenu,SWT.PUSH);
@@ -487,9 +487,9 @@ class XWindow {
         abouttool.addSelectionListener(xabout);
         
         // sep5
-        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
-        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
-        new MenuItem(fileMenu,SWT.SEPARATOR); // double delimiter for exit !!!
+        new ToolItem(toolBar,SWT.SEPARATOR).setWidth(20);
+        //new ToolItem(toolBar,SWT.SEPARATOR).setWidth(10);
+        //new MenuItem(fileMenu,SWT.SEPARATOR); // double delimiter for exit !!!
 		
 		
         // EXIT
@@ -544,7 +544,7 @@ class XWindow {
         final TableColumn column0 = new TableColumn(this.table, SWT.NONE);
         column0.setText("File");
         column0.setWidth(XConfig.windowW-XConfig.columnWidthHashMin-XConfig.columnWidthProgress);
-        final TableColumn column2 = new TableColumn(this.table, SWT.NONE);
+        final TableColumn column2 = new TableColumn(this.table, SWT.CENTER);
         column2.setText("Progress");
         column2.setWidth(XConfig.columnWidthProgress);
         final TableColumn column1 = new TableColumn(this.table, SWT.NONE);
@@ -622,7 +622,6 @@ class XWindow {
              
             @Override
             public void drop(DropTargetEvent event) {
-                // System.out.println(event.toString());
                 String[] files = (String[]) event.data;
                 if (files == null || files.length <= 0)
                     return;
