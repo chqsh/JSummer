@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ProgressBar;
 
 
@@ -85,44 +84,47 @@ class XFileGutter implements Runnable {
         });
 	}
     
-    protected void setProgress(final TableItem tr, final Control ctrl, float donePercent){
+    protected void setProgress(final TableItem tr, float donePercent){
 		if (donePercent < 0)
 			return;
 		int percent = Math.round(donePercent);
 		percent = (percent > 100) ? 100:percent;
-		int col = (ctrl == null) ? 1 : defaultColumn;
-		setText(tr, donePercent+"%", col, ctrl, percent);
+		int col = defaultColumn;
+		setText(tr, donePercent+"%", col, true, percent);
     }
     
-	protected void setResult(final TableItem tr,String txt, final Control ctrl){
+	protected void setResult(final TableItem tr,String txt){
 		if (txt.matches("^[0-9A-Fa-f]+$"))
 			txt = "OK"; // Defer actal work to following setText( HashValue ).
-		this.setText(tr,txt,1,ctrl,-1);
+		this.setText(tr,txt,1,true,-1);
     }
 	protected void setText(final TableItem tr,final String txt){
-		this.setText(tr,txt,2,null,0);
+		this.setText(tr,txt,2,false,0);
     }
 	protected void setText(final TableItem tr,final String txt,final int col,
-		final Control ctrl, int value){
+		boolean updateControl, int value){
         //this.o.debug("setText():"+col+": "+txt+" (old txt:"+tr.getText(col)+")",this.classDebugLevel);
 		this.o.debug("setText():"+col+": "+txt,this.classDebugLevel);
         this.xdisplay.asyncExec(new Runnable(){
             public void run(){
                 if(!tr.isDisposed()){
                     tr.setText(col,txt);
-                    if (ctrl != null) {
-                        ProgressBar progressBar = (ProgressBar)ctrl;
-                        if (value < 0) {
-                            progressBar.setVisible(false);
-                            progressBar.setSelection(0);
-                        } else {
-                            progressBar.setSelection(value);
-                        }
+					if (updateControl) {
+						final ProgressBar progressBar = (ProgressBar)XHashFile.getControl(tr);
+						if (progressBar != null) {
+							if (value < 0) {
+								progressBar.setVisible(false);
+								progressBar.setSelection(0);
+							} else {
+								progressBar.setSelection(value);
+							}
+					}
 					}
                 }
             }
         });
     }
+
 	protected void markError(final TableItem tr){
 		this.o.debug(this.toString()+"::markError()",this.classDebugLevel);
         this.xdisplay.asyncExec(new Runnable(){
@@ -130,7 +132,8 @@ class XFileGutter implements Runnable {
                 if(!tr.isDisposed()){
 	                tr.setBackground(XFileGutter.this.config.getColorTableBGError());
 	                tr.setForeground(XFileGutter.this.config.getColorTableFGError());
-	                tr.setImage(XFileGutter.this.config.imgERR);
+	                tr.setImage(XConfig.imgERR);
+					XHashFile.disposeEditor(tr, false);
                 }
             }
         });
@@ -138,19 +141,6 @@ class XFileGutter implements Runnable {
 	
 	protected void markTableRowDone(final TableItem tr){
 		this.o.debug(this.toString()+"::markTableRowDone()",this.classDebugLevel);
-		/*
-		if(XConfig.useColors){
-			this.xdisplay.asyncExec(new Runnable(){
-	            public void run(){
-	                if(!tr.isDisposed()){
-	                    XFileGutter.this.o.debug("markTableRowDone()"+tr.getText(),7);
-	                    tr.setForeground(XFileGutter.this.config.getColorTableFGDone());
-	                    tr.setImage(XFileGutter.this.config.imgOK);
-	                }
-	            }
-	        });
-		}
-		*/
         this.xdisplay.asyncExec(new Runnable(){
             public void run(){
                 if(!tr.isDisposed()){
@@ -158,26 +148,15 @@ class XFileGutter implements Runnable {
                     if(XConfig.useColors){
                         tr.setForeground(XFileGutter.this.config.getColorTableFGDone());
                     }
-                    tr.setImage(XFileGutter.this.config.imgOK);
+                    tr.setImage(XConfig.imgOK);
+					XHashFile.disposeEditor(tr, false);
                 }
             }
         });
 	}
 	
-	protected void marcTableRowInitial(final TableItem tr, final Control ctrl){
-        /*
-		if(XConfig.useColors){
-			this.xdisplay.asyncExec(new Runnable(){
-	            public void run(){
-	                if(!tr.isDisposed()){
-	                    tr.setForeground(XFileGutter.this.config.getColorTableFGNew());
-	                    tr.setBackground(XFileGutter.this.config.getColorTableBG());
-	                    tr.setImage(XFileGutter.this.config.imgUNKNOWN);
-	                }
-	            }
-	        });
-		}
-		*/
+	protected void markTableRowInitial(final TableItem tr){
+		this.o.debug(this.toString()+"::markTableRowInitial()",this.classDebugLevel);
         this.xdisplay.asyncExec(new Runnable(){
             public void run(){
                 if(!tr.isDisposed()){
@@ -185,11 +164,10 @@ class XFileGutter implements Runnable {
                         tr.setForeground(XFileGutter.this.config.getColorTableFGNew());
                         tr.setBackground(XFileGutter.this.config.getColorTableBG());
                     }
-                    tr.setImage(XFileGutter.this.config.imgUNKNOWN);
+                    tr.setImage(XConfig.imgUNKNOWN);
                     tr.setText(1,"");
                     tr.setText(2,"");
-                    if (ctrl != null)
-                        ctrl.setVisible(true);
+					XHashFile.createEditor(tr);
                 }
             }
         });

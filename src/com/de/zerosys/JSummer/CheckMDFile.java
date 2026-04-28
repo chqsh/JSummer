@@ -194,7 +194,8 @@ class CheckMDFile {
                         break;
                     }
                 } catch(IOException e) {
-                    return "";
+                    encoding = "";
+                    break;
                 }
             } // end of while
             
@@ -339,6 +340,9 @@ class CheckMDFile {
                 this.errorCode  = 4;
                 this.errorMsg = e.getMessage();
                 this.o.error("IOException:" + this.errorMsg);
+                try {
+                    fis.close();
+                } catch (IOException ex) {}
                 return false;
             }
         }

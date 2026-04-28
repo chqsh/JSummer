@@ -22,12 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
-import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Image;
-
-import java.io.InputStream;
 
 /**
  * @author zerwes
@@ -160,6 +155,7 @@ class XConfig extends Config{
                 XConfig.this.table.clearAll();
                 XConfig.this.table.setItemCount(0);
                 XConfig.this.table.update();
+				System.gc();
             }
         });
     }
@@ -201,26 +197,15 @@ class XConfig extends Config{
             public void run(){
 				//o.debug(this.toString()+"::XaddHashFile() run() for file "+f,classDebugLevel);
             	final TableItem tr = new TableItem(XConfig.this.table,SWT.NONE);
-            	final TableEditor ed = new TableEditor(XConfig.this.table);
-            	final ProgressBar progressBar = new ProgressBar(XConfig.this.table, SWT.SMOOTH);
-            	int col = 1;
-            	progressBar.setMinimum(0);
-            	progressBar.setMaximum(100);
-            	progressBar.setSelection(0);
-            	Rectangle cellSize = tr.getBounds(col);
-            	progressBar.setSize(cellSize.width, 10 /* cellSize.height */);
-            	ed.minimumWidth = cellSize.width;
-            	ed.minimumHeight= progressBar.getSize().y;
-            	ed.horizontalAlignment = SWT.LEFT;
-            	ed.setEditor(progressBar, tr, col);
-            	hf.setTableItem(tr, ed);
+            	hf.setTableItem(tr);
             	tr.setText(0,hf.getName());
-            	tr.setForeground(XConfig.this.getColorTableFGNew());
-                tr.setBackground(XConfig.this.getColorTableBG());
+				if (XConfig.useColors) {
+					tr.setForeground(XConfig.this.getColorTableFGNew());
+					tr.setBackground(XConfig.this.getColorTableBG());
+				}
 				tr.addDisposeListener(new org.eclipse.swt.events.DisposeListener() {
 					public void widgetDisposed(org.eclipse.swt.events.DisposeEvent e) {
-						ed.dispose();
-						progressBar.dispose();
+						hf.disposeEditor(true);
 					}
 				});
 
@@ -378,4 +363,11 @@ class XConfig extends Config{
         super.finalize();
         this.disposeFont();
     }
+
+	protected Shell getXshell() {
+		return this.xshell;
+	}
+	protected XWindow getXwindow() {
+		return this.xw;
+	}
 }

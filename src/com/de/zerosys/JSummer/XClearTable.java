@@ -66,13 +66,15 @@ final class XClearTable extends SelectionAdapter{
         	this.xw.setStopHash(true);
         	this.xw.setEnableSaveFile(false);
         	
-        	this.config.setRelativePath("");
+        	/* [20260427] clearTable should not change user configuration.
+            this.config.setRelativePath("");
         	this.config.setUseSysIndepPathSeparator(true);
         	this.config.setUseRelPath(true,true);
+            */
         	this.config.setCheckMDFile("");
-        	this.config.setCheckMDFileEncoding(""); // Unknown Charset name
+        	this.config.setCheckMDFileEncoding(this.xw.getEncodingMenuSelection()); // "": Unknown Charset name. Auto detect
         	
-        	this.xw.setUseRelPath(true);
+        	// this.xw.setUseRelPath(true); // [20260427]
         	this.xw.updateTitle();
         	
         	this.xw.setNumfilesLabel(0);

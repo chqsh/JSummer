@@ -23,8 +23,10 @@ class CoreConfig {
     
     protected static int DEFAULTDEBUG = 0;
     
-    public final static String VERSION = "0.1.0.0";
-    protected final static String COPYLEFT = "(c) 2004 - 2008 Klaus Zerwes zero-sys.net";
+    public final static String VERSION = "1.0.0.0";
+    protected final static String COPYLEFT = "(c) 2004 - 2008 Klaus Zerwes zero-sys.net\n(c) 2026 https://github.com/chqsh/JSummer/";
+    protected final static String COPYLEFTLINK = "(c) 2004 - 2008 Klaus Zerwes <a>zero-sys.net</a> (<A href=\"https://sourceforge.net/projects/jsummer/\">SourceForge</A>)\n" + 
+        "(c) 2026 chqsh <a>https://github.com/chqsh/JSummer/</a>";
     protected final static String GNUCRYPTOCOPYLEFT = "This software makes use of parts from the gnu.crypto project;\nsee: http://www.gnu.org/software/gnu-crypto for more details.";
     protected final static String SWTCOPYLEFT = "The GUI of this software uses SWT from http://www.eclipse.org.";
     protected final static String GPL = "This software is licensed under the terms of the GNU General Public License (GPL),\nversion 2.0 or later, as published by the Free Software Foundation.\nSee http://www.gnu.org/copyleft/gpl.txt\nfor the terms of the latest version of the GNU General Public License.";
@@ -94,16 +96,21 @@ class CoreConfig {
         this.containerHashSumInfo.add(new HashSumInfo(Registry.MD5_HASH));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.MD4_HASH));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.MD2_HASH));
+        /*
         this.containerHashSumInfo.add(new HashSumInfo(Registry.SHA160_HASH, new String[]{"SHA","SHA1","SHA-1","SHA160"}, new String[]{"sha1", "sha160"}));
+        */
+        // gnu.crypto.Registry.SHA160_HASH => SHA-1
+        this.containerHashSumInfo.add(new HashSumInfo("SHA-1", new String[]{"SHA","SHA1","SHA-1","SHA160","SHA-160"}, new String[]{"sha1", "sha160"}));
+        //
         this.containerHashSumInfo.add(new HashSumInfo(Registry.SHA256_HASH, new String[]{"SHA256","SHA2-1"}, "sha256"));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.SHA384_HASH, new String[]{"SHA384","SHA2-2"}, "sha384"));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.SHA512_HASH, new String[]{"SHA512","SHA2-3"}, "sha512"));
-        this.containerHashSumInfo.add(new HashSumInfo(Registry.RIPEMD128_HASH, new String[]{Registry.RIPEMD_128_HASH}));
-        this.containerHashSumInfo.add(new HashSumInfo(Registry.RIPEMD160_HASH, new String[]{Registry.RIPEMD_160_HASH}));
-        this.containerHashSumInfo.add(new HashSumInfo(Registry.WHIRLPOOL_HASH));
-        this.containerHashSumInfo.add(new HashSumInfo(Registry.TIGER_HASH));
-        this.containerHashSumInfo.add(new HashSumInfo(Registry.HAVAL_HASH));
-        this.containerHashSumInfo.add(new HashSumInfo("CRC32", new String[]{"CRC","CRC32","CRC-32"}, new String[]{"sfv", "crc", "crc32"}));
+        this.containerHashSumInfo.add(new HashSumInfo(Registry.RIPEMD128_HASH, new String[]{Registry.RIPEMD_128_HASH}, HashSumInfo.MessageDigestProvider.Gnu_Crypto));
+        this.containerHashSumInfo.add(new HashSumInfo(Registry.RIPEMD160_HASH, new String[]{Registry.RIPEMD_160_HASH}, HashSumInfo.MessageDigestProvider.Gnu_Crypto));
+        this.containerHashSumInfo.add(new HashSumInfo(Registry.WHIRLPOOL_HASH, HashSumInfo.MessageDigestProvider.Gnu_Crypto)); // Orignal is Whirlpool-T. Change it to Whirlpool at Apr 12, 2026.
+        this.containerHashSumInfo.add(new HashSumInfo(Registry.TIGER_HASH, HashSumInfo.MessageDigestProvider.Gnu_Crypto));
+        this.containerHashSumInfo.add(new HashSumInfo(Registry.HAVAL_HASH, HashSumInfo.MessageDigestProvider.Gnu_Crypto));
+        this.containerHashSumInfo.add(new HashSumInfo("CRC32", new String[]{"CRC","CRC32","CRC-32"}, new String[]{"sfv", "crc", "crc32"}, HashSumInfo.MessageDigestProvider.Java_Util_Zip));
     }
     
     protected String getAllSupportedTypesExt(String prepend, String delimiter){
@@ -139,9 +146,9 @@ class CoreConfig {
     }
     
     protected void debugMem(){
-        this.o.debug("free mem:  "+Runtime.getRuntime().freeMemory(),1);
+        this.o.debug("free  mem: "+Runtime.getRuntime().freeMemory(),1);
         this.o.debug("total mem: "+Runtime.getRuntime().totalMemory(),1);
-        this.o.debug("max mem:   "+Runtime.getRuntime().maxMemory(),1);
+        this.o.debug("max   mem: "+Runtime.getRuntime().maxMemory(),1);
     }
     
     protected Screen getScreen(){
@@ -339,6 +346,9 @@ class CoreConfig {
     protected String getConfigErrorMsg(){
         return this.configErrorMsg;
     }
+    protected void clearConfigError(){
+        this.configError = false;
+    }
     
     protected String getSaveMDFile() {
         return this.saveMDFile;
@@ -373,10 +383,10 @@ class CoreConfig {
             +"  -m alg\tuse 'alg' as algorithm where \n"
             +"  \t\t'alg' may be caseinsensitive one of:\n";
         
-        Enumeration hie = this.containerHashSumInfo.elements();
+        Enumeration<HashSumInfo> hie = this.containerHashSumInfo.elements();
 		HashSumInfo hsi = null;
 		while(hie.hasMoreElements()) {
-			hsi = (HashSumInfo)hie.nextElement();
+			hsi = hie.nextElement();
 			h += "  \t\t"+hsi.getHashAlgName().toUpperCase();
 			String alt = hsi.getalternativeHashNamesAsString(" ").toUpperCase();
 			if(alt.length() > 0) {
@@ -598,7 +608,7 @@ class CoreConfig {
         }
     }
     
-    protected Vector getMD5Files(){
+    protected Vector<CoreHashFile> getMD5Files(){
         return this.hashFiles;
     }
     

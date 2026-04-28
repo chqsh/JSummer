@@ -12,6 +12,11 @@
  */
 package com.de.zerosys.JSummer;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,13 +25,19 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+// import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.awt.Desktop;
 
 
 class XAboutWindow extends Dialog{
@@ -134,11 +145,46 @@ class XAboutWindow extends Dialog{
 		prog.setForeground(shell.getForeground());
 		
 		
-		final Label copyleft = new Label(comp,SWT.WRAP);
-		copyleft.setText(CoreConfig.COPYLEFT);
+		// final Label copyleft = new Label(comp,SWT.WRAP);
+		// copyleft.setText(CoreConfig.COPYLEFT);
+		final Link copyleft = new Link(comp,SWT.WRAP);
+		copyleft.setText(CoreConfig.COPYLEFTLINK);
 		copyleft.setLayoutData(this.getGridData());
 		copyleft.setBackground(shell.getBackground());
 		copyleft.setForeground(shell.getForeground());
+		copyleft.addListener(SWT.Selection, new Listener() {
+			String clickedUrl;
+
+			public void handleEvent(Event event) {
+				clickedUrl = event.text;
+				if (!clickedUrl.startsWith("http://") &&
+					!clickedUrl.startsWith("https://")) {
+					clickedUrl = "https://" + clickedUrl;
+				}
+				
+				// Program.launch(clickedUrl); // The operation is obsolete as it is not safe!
+				
+				parent.getDisplay().asyncExec(new Runnable(){
+					public void run(){
+						if(!copyleft.isDisposed()){
+							// java.awt.Desktop
+							if (Desktop.isDesktopSupported() &&
+								Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+								try {
+									Desktop.getDesktop().browse(new URI(clickedUrl));
+								} catch (IOException | java.net.URISyntaxException ex) {
+									Logger.getLogger(XWindow.class.getName()).log(Level.SEVERE,
+										"Can NOT show URI:" + clickedUrl, ex);
+								}
+							} else {
+								System.err.println("The Desktop or Desktop.Action.BROWSE is NOT supported!");
+							}
+						}
+					}
+				});
+				
+			}
+		});
 		
 		final Label license = new Label(comp,SWT.WRAP|SWT.HORIZONTAL);
 		license.setText(CoreConfig.GPL);

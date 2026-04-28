@@ -93,8 +93,6 @@ class HashFile extends CoreHashFile implements Runnable{
 	}
 	
     
-
-	
 	protected long getEstimatedDoneTime(){
 		long ret = this.eProcTime/4;
 		this.debug("getEstimatedDoneTime : "+ret);
@@ -109,7 +107,6 @@ class HashFile extends CoreHashFile implements Runnable{
 		this.debug("getEstimatedDoneTime returning "+ret);
 		return ret;
 	}
-
 	
 	
 	protected boolean doHashSum(){
@@ -180,6 +177,8 @@ class HashFile extends CoreHashFile implements Runnable{
 				
 				if(this.getErrorCode()>0){
 					this.calcStatus = 2;
+					bis.close();
+					fis.close();
 					return false;
 				}
 				

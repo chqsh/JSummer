@@ -44,7 +44,7 @@ class XFileGutterHashThread implements Runnable {
 			}
 			this.debug("going round ...");
 			
-			Enumeration fe = this.config.getMD5Files().elements();
+			Enumeration<CoreHashFile> fe = this.config.getMD5Files().elements();
             int filecount = 0;
             int errorcount = 0;
             this.xw.setHashedfilesLabel(filecount);
@@ -91,7 +91,7 @@ class XFileGutterHashThread implements Runnable {
 				if(f.getCalcStatus()==0){
 				    this.debug(this.toString()+" - start thread "+f.getAbsName());
 				    this.xw.setEnableSaveFile(false);
-				    this.xfg.marcTableRowInitial(tr, f.getEditor());
+				    this.xfg.markTableRowInitial(tr);
 				    Thread ft = new Thread(f);
 				    this.setHashIsRunning(true);
 					ft.start();
@@ -122,7 +122,7 @@ class XFileGutterHashThread implements Runnable {
 							sleep = edtime;
 						}else{
 							//this.xfg.setText(f.getTableItem(),f.getDonePercent()+"%");
-							this.xfg.setProgress(f.getTableItem(),f.getEditor(),f.getDonePercent());
+							this.xfg.setProgress(f.getTableItem(),f.getDonePercent());
 						}
 						try{
 							Thread.sleep(sleep);
@@ -131,8 +131,8 @@ class XFileGutterHashThread implements Runnable {
 						}
 					}
 					this.debug(this.toString()+" finished "+f.getAbsName());
-					this.xfg.setProgress(f.getTableItem(),f.getEditor(),f.getDonePercent());
-					this.xfg.setResult(f.getTableItem(),f.getHashResult(),f.getEditor());
+					this.xfg.setProgress(f.getTableItem(),f.getDonePercent());
+					this.xfg.setResult(f.getTableItem(),f.getHashResult());
 					this.xfg.setText(f.getTableItem(),
 						(f.getErrorCode()>0) ? "" : f.getHash());
                     if(f.isCheck() && ! f.istCheckresultOK()){
@@ -155,13 +155,7 @@ class XFileGutterHashThread implements Runnable {
 					this.setHashIsRunning(false);
 					/* [20260405] Can not recover progressBar once it is disposed.
 					 * But, only when the progressBar is disposed, the text of the table item can be displayed.
-					 * (Move to markTableRowDone() / setResult())
-					this.xfg.xdisplay.asyncExec(new Runnable(){
-						public void run(){
-							//f.disposeAccessory();
-							f.setVisibleAccessory(false);
-						}
-					});
+					 * (Move to markTableRowDone(), markError() or setResult())
 					 */
 				}
 				if(this.decideStopThread()){

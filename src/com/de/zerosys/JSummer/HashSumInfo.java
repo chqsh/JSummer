@@ -18,13 +18,26 @@ final class HashSumInfo {
 	private String[] hashFileExtension = new String[10];
 	private int hashFileExtensionIDX = 0;
 	
+	public enum MessageDigestProvider {
+        Java_Security,
+        Gnu_Crypto,
+        Java_Util_Zip;
+	}
+	
+	protected MessageDigestProvider provider = MessageDigestProvider.Java_Security;
 	
 	protected HashSumInfo(String hashAlgName) {
 		this.hashAlgName = hashAlgName;
 		this.addHashFileExtension(this.hashAlgName.toLowerCase());
 	}
-	protected HashSumInfo(String hashAlgName, String[] alternativeHashNames) {
+	protected HashSumInfo(String hashAlgName, MessageDigestProvider provider) {
 		this.hashAlgName = hashAlgName;
+		this.provider = provider;
+		this.addHashFileExtension(this.hashAlgName.toLowerCase());
+	}
+	protected HashSumInfo(String hashAlgName, String[] alternativeHashNames, MessageDigestProvider provider) {
+		this.hashAlgName = hashAlgName;
+		this.provider = provider;
 		this.alternativeHashNames = alternativeHashNames;
 		this.addHashFileExtension(this.hashFileExtension[0] = this.hashAlgName.toLowerCase());
 	}
@@ -36,6 +49,15 @@ final class HashSumInfo {
 	}
 	protected HashSumInfo(String hashAlgName, String[] alternativeHashNames, String[] hashFileExtensions) {
 		this.hashAlgName = hashAlgName;
+		this.alternativeHashNames = alternativeHashNames;
+		for(int i=0; i<hashFileExtensions.length; i++) {
+			this.addHashFileExtension(hashFileExtensions[i]);
+		}
+		this.addHashFileExtension(this.hashAlgName.toLowerCase());
+	}
+	protected HashSumInfo(String hashAlgName, String[] alternativeHashNames, String[] hashFileExtensions, MessageDigestProvider provider) {
+		this.hashAlgName = hashAlgName;
+		this.provider = provider;
 		this.alternativeHashNames = alternativeHashNames;
 		for(int i=0; i<hashFileExtensions.length; i++) {
 			this.addHashFileExtension(hashFileExtensions[i]);
@@ -89,6 +111,9 @@ final class HashSumInfo {
 	}
 	protected final String getHashAlgName() {
 		return hashAlgName;
+	}
+	protected final MessageDigestProvider getHashAlgProvider() {
+		return this.provider;
 	}
 	
 	protected void addHashFileExtension(String ext) {

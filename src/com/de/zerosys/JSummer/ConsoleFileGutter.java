@@ -33,8 +33,8 @@ final class ConsoleFileGutter {
 	}
 	
 	protected void doit(){
-		Vector fv = this.config.getMD5Files();
-        Enumeration fe = fv.elements();
+		Vector<CoreHashFile> fv = this.config.getMD5Files();
+        Enumeration<CoreHashFile> fe = fv.elements();
 		long totalSize = 0;
 		long startTime = System.currentTimeMillis();
 		

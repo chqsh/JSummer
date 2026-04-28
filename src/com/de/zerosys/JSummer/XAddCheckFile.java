@@ -48,12 +48,12 @@ final class XAddCheckFile extends SelectionAdapter{
         fext[0] = "*."+this.config.getSaveHashFileExtension();
         fextText[0] = "["+this.config.getHashSumName()+"]"; // Current selected hash algorithm
         
-        Enumeration hie = this.config.containerHashSumInfo.elements();
+        Enumeration<HashSumInfo> hie = this.config.containerHashSumInfo.elements();
 		HashSumInfo hsi = null;
 		int i = 1;
 		String allSupportedTypesExt = "";
 		while(hie.hasMoreElements()) {
-			hsi = (HashSumInfo)hie.nextElement();
+			hsi = hie.nextElement();
 			String ext = hsi.getAllHashFileExtensions("*.", ";");
 			if(allSupportedTypesExt.length() > 0) allSupportedTypesExt += ";";
 			allSupportedTypesExt += ext;

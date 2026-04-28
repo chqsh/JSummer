@@ -40,8 +40,16 @@ class XChangeHashAlg extends SelectionAdapter{
     
 	public void widgetSelected(SelectionEvent e){
 		this.o.debug(this.toString()+"::widgetSelected() :: "+e.toString(),this.classDebugLevel);
-		// TODO: msgbox ???
 		this.actOnSelection();
+		if(this.config.isConfigError()){
+            e.doit = false;
+            if (e.getSource() instanceof MenuItem) {
+                MenuItem item = (MenuItem)e.getSource();
+                item.setSelection(false);
+                item.setEnabled(false);
+            }
+            this.config.clearConfigError();
+		}
 	}
 	
 	protected void actOnSelection(){
@@ -71,17 +79,17 @@ class XChangeHashAlg extends SelectionAdapter{
 	    		mb.setMessage("Do you want to calculate a new hash for the files from the checkfile '"+this.config.getCheckFile()+"'?");
 	    		if(mb.open()!=SWT.OK){
 	    			new XClearTable(this.xw).clearTable();
-	    		} 
+	    		}
 			}
 			if(this.config.getMD5Files().size()>0){
 				this.config.setCheckMDFile("");
 				this.xw.setStopHash(true);
-				Enumeration fe = this.config.getMD5Files().elements();
+				Enumeration<CoreHashFile> fe = this.config.getMD5Files().elements();
 				while(fe.hasMoreElements()){
 					XHashFile f = (XHashFile)fe.nextElement();
 					f.reset();
 					this.xw.getXfg().setText(f.getTableItem(),"");
-					this.xw.getXfg().marcTableRowInitial(f.getTableItem(), f.getEditor());
+					this.xw.getXfg().markTableRowInitial(f.getTableItem());
 					this.o.debug(this.toString()+" reset done for "+f.getAbsName(),this.classDebugLevel);
 				}
 				this.xw.getTable().update();
@@ -101,9 +109,9 @@ class XChangeHashAlg extends SelectionAdapter{
 	private void setSelectionForHash(){
 		this.xw.getShell().getDisplay().asyncExec(new Runnable(){
             public void run(){
-            	Enumeration hie = XChangeHashAlg.this.config.containerHashSumInfo.elements();
+            	Enumeration<HashSumInfo> hie = XChangeHashAlg.this.config.containerHashSumInfo.elements();
         		while(hie.hasMoreElements()) {
-        			HashSumInfo hsi = (HashSumInfo)hie.nextElement();
+        			HashSumInfo hsi = hie.nextElement();
         			boolean sel = false;
         			if(XChangeHashAlg.this.hash.equals(hsi.getHashAlgName())) {
         				sel = true;

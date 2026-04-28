@@ -42,7 +42,7 @@ class XFileGutterNameThread implements Runnable {
 				return;
 			}
 			try {
-				Enumeration fe = this.config.getMD5Files().elements();
+				Enumeration<CoreHashFile> fe = this.config.getMD5Files().elements();
 				while(fe.hasMoreElements()){
 					if(this.xfg.isStopMe()||this.xfg.getXdisplay().isDisposed()){
 						this.o.debug(this.toString()+" fileloop : going away ...",this.classDebugLevel);

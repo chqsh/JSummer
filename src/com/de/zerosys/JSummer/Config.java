@@ -58,10 +58,10 @@ class Config extends CoreConfig{
 		if(this.o.getDebugLevel() > 5) {
 			this.o.debug(this.getClass().getName()+"::setHashSum: '"+algorithm+"'", 5);
 		}
-		Enumeration hie = this.containerHashSumInfo.elements();
+		Enumeration<HashSumInfo> hie = this.containerHashSumInfo.elements();
 		HashSumInfo hsi = null;
 		while(hie.hasMoreElements()) {
-			hsi = (HashSumInfo)hie.nextElement();
+			hsi = hie.nextElement();
 			if(this.o.getDebugLevel() > 5) {
 				this.o.debug("loop hash type:"+hsi.getHashAlgName(), 5);
 			}
@@ -76,7 +76,8 @@ class Config extends CoreConfig{
 		} else {
 			try{
 				this.o.debug("trying to build HashSum hash type:"+hsi.getHashAlgName(), 5);
-				this.hs = new HashSum(hsi.getHashAlgName());
+				this.configError = false;
+				this.hs = new HashSum(hsi.getHashAlgName(), hsi.getHashAlgProvider());
 				this.actualHashSumInfo = hsi;
 			}catch(NoSuchAlgorithmException e){
 				this.configError = true;
@@ -234,10 +235,10 @@ class Config extends CoreConfig{
         	final int dotPos = checkMDFile.lastIndexOf(".");
         	if(dotPos>0){
         		final String ext = checkMDFile.substring(dotPos+1, checkMDFile.length());
-        		Enumeration hie = this.containerHashSumInfo.elements();
+        		Enumeration<HashSumInfo> hie = this.containerHashSumInfo.elements();
         		HashSumInfo hsi = null;
         		while(hie.hasMoreElements()) {
-        			hsi = (HashSumInfo)hie.nextElement();
+        			hsi = hie.nextElement();
         			//if(ext.equalsIgnoreCase(hsi.getHashFileExtension())) {
         			if(hsi.isValidHashFileExtension(ext)) {
         				this.setHashSum(hsi.getHashAlgName());
