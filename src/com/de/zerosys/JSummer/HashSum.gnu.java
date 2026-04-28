@@ -16,9 +16,10 @@ import gnu.crypto.Registry;
 import gnu.crypto.hash.HashFactory;
 import gnu.crypto.hash.IMessageDigest;
 
-
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.Checksum;
+import java.util.zip.CRC32;
+import java.nio.ByteBuffer;
 
 
 /*
@@ -27,37 +28,49 @@ import java.util.zip.Checksum;
 class HashSum implements Checksum{
 	private int BuffSize = 4012;
 	private IMessageDigest md = null;
+	private CRC32 crc32 = null;
 	
 	
 	protected HashSum(String mdtype) throws NoSuchAlgorithmException {
 		
 		try {
-			this.md = HashFactory.getInstance(mdtype);
+			mdtype = mdtype.trim();
+			if (mdtype.equalsIgnoreCase("CRC32"))
+				this.crc32 = new CRC32();
+			else
+				this.md = HashFactory.getInstance(mdtype);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			throw new java.security.NoSuchAlgorithmException("No such Algorithm: "+mdtype);
 		}
 		
-		if(this.md == null) {
+		if(this.md == null && this.crc32 == null) {
 			throw new java.security.NoSuchAlgorithmException("No such Algorithm: "+mdtype);
 		}
 	}
 	
 	protected boolean isSameAlg(String alg){
-		if(this.md==null) return false;
+		if (this.crc32 != null)
+			return "CRC32".equalsIgnoreCase(alg);
+		
+		if (this.md==null) return false;
 		return this.md.name().equalsIgnoreCase(alg);
 	}
 	
 	protected String getName(){
-		if(this.md==null) return "UNDEFINED";
+		if (this.crc32 != null) return "CRC32";
+		if (this.md==null) return "UNDEFINED";
 		return this.md.name();
 	}
 	
 	protected int getHashLenght(){
-		if(this.md.name().equalsIgnoreCase(Registry.WHIRLPOOL_HASH)) {
+		if (this.crc32 != null)
+			return 8;
+		if (this.md == null)
+			return -1;
+		if (this.md.name().equalsIgnoreCase(Registry.WHIRLPOOL_HASH))
 			return 128;
-		}
 		return this.md.hashSize()*2;
 	}
 	
@@ -74,25 +87,43 @@ class HashSum implements Checksum{
 	
 	// must be public because we can not reduce visibility of inherited methods 
 	public void update(byte[] buff, int off, int len){
-		this.md.update(buff,off,len);
+		if (this.crc32 != null)
+			this.crc32.update(buff,off,len);
+		else
+			this.md.update(buff,off,len);
     }
 	public void update(int i){
-		this.md.update((byte)i);
+		if (this.crc32 != null)
+			this.crc32.update(i);
+		else
+			this.md.update((byte)i);
 	}
     
     protected byte[] digest(){
-        return this.md.digest();
+		if (this.crc32 != null) {
+			ByteBuffer buffer = ByteBuffer.allocate(4);
+			buffer.putInt((int)this.crc32.getValue());
+			return buffer.array();
+		}
+		
+		return this.md.digest();
     }
 	
 	/*
 	 * NOT USED but required to implement Checksum
 	 */
 	public long getValue(){
-		return 0;
+		if (this.crc32 != null)
+			return this.crc32.getValue();
+		else
+			return 0;
 	}
 	
 	public void reset(){
-		this.md.reset();
+		if (this.crc32 != null)
+			this.crc32.reset();
+		else
+			this.md.reset();
 	}
 	
 	public String hexit(byte[] array,boolean uppercase) {

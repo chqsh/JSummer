@@ -103,6 +103,7 @@ class CoreConfig {
         this.containerHashSumInfo.add(new HashSumInfo(Registry.WHIRLPOOL_HASH));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.TIGER_HASH));
         this.containerHashSumInfo.add(new HashSumInfo(Registry.HAVAL_HASH));
+        this.containerHashSumInfo.add(new HashSumInfo("CRC32", new String[]{"CRC","CRC32","CRC-32"}, new String[]{"sfv", "crc", "crc32"}));
     }
     
     protected String getAllSupportedTypesExt(String prepend, String delimiter){
