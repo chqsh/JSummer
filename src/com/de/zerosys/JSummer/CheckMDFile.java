@@ -375,6 +375,11 @@ class CheckMDFile {
                     this.o.debug("comment line ignored",this.classDebugLevel);
                     continue;
                 }
+                final String sfvMatchRule = "^(.*) +([0-9A-Fa-f]+)$";
+                if (l.matches(sfvMatchRule)) {
+					l = l.replaceAll(sfvMatchRule,"$2 *$1");
+					// System.out.println("SFV: " + l);
+                }
                 if (l.matches("^[0-9a-fA-F]{8,}$")) {
                     StringBuilder s = new StringBuilder(l);
                     s.append(" *");
