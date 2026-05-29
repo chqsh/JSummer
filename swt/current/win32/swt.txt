@@ -1,0 +1,4 @@
+version 3.349 win32-x86
+
+https://mvnrepository.com/artifact/org.eclipse/org.eclipse.swt.win32.win32.x86/3.3.3.v3349
+https://mvnrepository.com/artifact/org.eclipse/swt-win32-win32-x86/3.2.2
